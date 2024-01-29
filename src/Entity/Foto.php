@@ -16,10 +16,6 @@ class Foto
     #[ORM\Column(name:'idfoto')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'fotos')]
-    #[ORM\JoinColumn(name: 'idalbum', referencedColumnName:'idalbum')]
-    private ?Album $album = null;
-
     #[ORM\Column(length: 45, nullable: true)]
     private ?string $arquivo = null;
 
@@ -38,7 +34,14 @@ class Foto
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated = null;
 
-    public function __construct() {
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'fotos')]
+        #[ORM\JoinColumn(name: 'idalbum', referencedColumnName:'idalbum')]
+        private ?Album $album
+    ) {
+        $this->setDestaque('N');
+        $this->setVisivel('S');
+
         $this->setCreated(new \DateTimeImmutable());
         if ($this->getUpdated() === null) {
             $this->setUpdated(new \DateTimeImmutable());
@@ -53,13 +56,6 @@ class Foto
     public function getAlbum(): ?Album
     {
         return $this->album;
-    }
-
-    public function setAlbum(Album $album): static
-    {
-        $this->album = $album;
-
-        return $this;
     }
 
     public function getArquivo(): ?string
@@ -115,7 +111,7 @@ class Foto
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): static
+    private function setCreated(\DateTimeInterface $created): static
     {
         $this->created = $created;
 
@@ -127,7 +123,7 @@ class Foto
         return $this->updated;
     }
 
-    public function setUpdated(\DateTimeInterface $updated): static
+    private function setUpdated(\DateTimeInterface $updated): static
     {
         $this->updated = $updated;
 

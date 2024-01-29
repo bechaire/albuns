@@ -15,54 +15,23 @@ class Visita
     #[ORM\Column(name:'idvisita')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'visitas')]
-    #[ORM\JoinColumn(name: 'idalbum', referencedColumnName:'idalbum')]
-    private ?Album $album;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $datahora = null;
+    public readonly \DateTimeInterface $datahora;
 
-    #[ORM\Column(length: 255)]
-    private ?string $userinfo = null;
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'visitas')]
+        #[ORM\JoinColumn(name: 'idalbum', referencedColumnName:'idalbum')]
+        public readonly Album $album,
+
+        #[ORM\Column(length: 255)]
+        public readonly string $userinfo,
+    ) {
+        $this->datahora = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAlbum(): ?Album
-    {
-        return $this->album;
-    }
-
-    public function setAlbum(?Album $album): static
-    {
-        $this->album = $album;
-
-        return $this;
-    }
-
-    public function getDatahora(): ?\DateTimeInterface
-    {
-        return $this->datahora;
-    }
-
-    public function setDatahora(\DateTimeInterface $datahora): static
-    {
-        $this->datahora = $datahora;
-
-        return $this;
-    }
-
-    public function getUserinfo(): ?string
-    {
-        return $this->userinfo;
-    }
-
-    public function setUserinfo(string $userinfo): static
-    {
-        $this->userinfo = $userinfo;
-
-        return $this;
-    }
 }

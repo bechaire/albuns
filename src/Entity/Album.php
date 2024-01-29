@@ -28,23 +28,14 @@ class Album
     #[ORM\OneToMany(targetEntity: Foto::class, mappedBy: 'album')]
     private Collection $fotos;
 
-    #[ORM\Column(length: 10)]
-    private ?string $instituicao = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $data = null;
+    #[ORM\Column(length: 1, options: ['comment'=>'A = Ativo | E = Em Espera | I  = Inativo (Remover futuramente)'])]
+    private ?string $status = null;
 
     #[ORM\Column(length: 4)]
     private ?string $ano = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $local = null;
-
     #[ORM\Column(length: 1)]
     private ?string $addtag = null;
-
-    #[ORM\Column(length: 1)]
-    private ?string $status = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $acessos = null;
@@ -55,9 +46,22 @@ class Album
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated = null;
 
-    public function __construct() {
+    public function __construct(
+        #[ORM\Column(length: 10)]
+        private ?string $instituicao,
+    
+        #[ORM\Column(type: Types::DATE_MUTABLE)]
+        private ?\DateTimeInterface $data,
+
+        #[ORM\Column(length: 255, nullable: true)]
+        private ?string $local,
+    ) {
         $this->visitas = new ArrayCollection();
         $this->fotos = new ArrayCollection();
+
+        $this->setAcessos(0);
+        $this->setAddtag('S');
+        $this->setStatus('E');
 
         $this->setCreated(new \DateTimeImmutable());
         if ($this->getUpdated() === null) {
@@ -118,20 +122,13 @@ class Album
     public function setData(\DateTimeInterface $data): static
     {
         $this->data = $data;
-
+        $this->ano = $data->format('Y');
         return $this;
     }
 
     public function getAno(): ?string
     {
         return $this->ano;
-    }
-
-    public function setAno(string $ano): static
-    {
-        $this->ano = $ano;
-
-        return $this;
     }
 
     public function getLocal(): ?string

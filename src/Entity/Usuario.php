@@ -21,15 +21,6 @@ class Usuario
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'usuario')]
     private Collection $albuns;
 
-    #[ORM\Column(length: 45)]
-    private ?string $usuario = null;
-
-    #[ORM\Column(length: 75)]
-    private ?string $email = null;
-
-    #[ORM\Column(length: 65)]
-    private ?string $nome = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $roles = null;
 
@@ -45,9 +36,20 @@ class Usuario
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated = null;
 
-    public function __construct() {
+    public function __construct(
+        #[ORM\Column(length: 45)]
+        private ?string $usuario,
+    
+        #[ORM\Column(length: 75)]
+        private ?string $email,
+    
+        #[ORM\Column(length: 65)]
+        private ?string $nome,
+    ) {
         $this->albuns = new ArrayCollection();
-        
+
+        $this->setAtivo('S');
+
         $this->setCreated(new \DateTimeImmutable());
         if ($this->getUpdated() === null) {
             $this->setUpdated(new \DateTimeImmutable());
