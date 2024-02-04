@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<main class="form-signin w-100 m-auto">
+
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+  {% endfor %}
+
+  <form method="post" action="{{ path('app_admin_login') }}">
+    <a href="{{ url_albuns }}" class="text-center d-block" title="Página inicial de {{ block('title') }}">
+        <img class="mb-4" src="{{ asset('images/logo_95x91.png') }}" alt="Logo, CFJL/FAHOR">
+    </a>
+    <h1 class="h3 mb-3 fw-normal border-bottom pb-2 text-center">Faça o logon</h1>
+
+    <div class="form-floating">
+      <input name="usuario" type="text" class="form-control" id="float-usuario" placeholder="Usuário"  autocomplete="username" required>
+      <label for="float-usuario">Usuário da rede/wi-fi</label>
+    </div>
+    <div class="form-floating">
+      <input name="senha" type="password" class="form-control" id="float-senha" placeholder="Senha" autocomplete="current-password" required>
+      <label for="float-senha">Senha da rede/wi-fi</label>
+    </div>
+
+    <button class="btn btn-primary w-100 py-2 mt-4" type="submit">Entrar</button>
+    <p class="my-4 text-body-secondary text-center">© 1999-{{ "now"|date("Y") }}</p>
+  </form>
+</main>
+{% endblock %}
+
+{% block afterbody %}
+<style>
+    .form-signin {
+        max-width: 330px;
+        padding: 1rem;
+    }
+</style>
+<script>
+    document.body.classList.add("d-flex", "align-items-center", "py-4", "bg-body-tertiary")
+</script>
+{% endblock %}

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\UsuarioRepository;
@@ -7,11 +9,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[ORM\Table(name:'usuarios')]
 #[ORM\HasLifecycleCallbacks]
-class Usuario
+class Usuario implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,8 +24,8 @@ class Usuario
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'usuario')]
     private Collection $albuns;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $roles = null;
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\Column(length: 1)]
     private ?string $ativo = null;
@@ -37,10 +40,10 @@ class Usuario
     private ?\DateTimeInterface $updated = null;
 
     public function __construct(
-        #[ORM\Column(length: 45)]
+        #[ORM\Column(length: 65, unique: true)]
         private ?string $usuario,
     
-        #[ORM\Column(length: 75)]
+        #[ORM\Column(length: 120, unique: true)]
         private ?string $email,
     
         #[ORM\Column(length: 65)]
@@ -49,11 +52,23 @@ class Usuario
         $this->albuns = new ArrayCollection();
 
         $this->setAtivo('S');
+        $this->setRoles(['ROLE_USER']);
 
         $this->setCreated(new \DateTimeImmutable());
         if ($this->getUpdated() === null) {
             $this->setUpdated(new \DateTimeImmutable());
         }
+    }
+
+    public function eraseCredentials(): void { }
+
+    /**
+     * The public representation of the user (e.g. a username, an email address, etc.)
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string { 
+        return $this->usuario;
     }
 
     public function getId(): ?int
@@ -76,7 +91,7 @@ class Usuario
 
     public function setUsuario(string $usuario): static
     {
-        $this->usuario = $usuario;
+        $this->usuario = mb_strtolower($usuario);
 
         return $this;
     }
@@ -88,7 +103,7 @@ class Usuario
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = mb_strtolower($email);
 
         return $this;
     }
@@ -105,14 +120,21 @@ class Usuario
         return $this;
     }
 
-    public function getRoles(): ?string
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
     {
-        return $this->roles;
+        $roles = $this->roles;
+
+        return array_unique($roles);
     }
 
-    public function setRoles(?string $roles): static
+    public function setRoles(array $roles): static
     {
-        $this->roles = $roles;
+        $roles[] = 'ROLE_USER';
+
+        $this->roles = array_unique($roles);
 
         return $this;
     }
