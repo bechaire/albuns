@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<style>
+    body {
+        background-color: var(--bs-tertiary-bg);
+    }
+</style>
+<div class="container-xxl">
+    <div class="header-area">
+
+        <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top navbar-header-admin">
+            <div class="container px-3">
+                <a class="navbar-brand" href="{{ path('app_admin_home') }}">
+                    <img src="{{ asset('images/adm_logo.png') }}" alt="">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="nav nav-pills me-auto mb-2 mb-lg-0">
+                        <li class="nav-item ms-3">
+                            <a class="btn btn-success opacity-75" aria-current="page" href="{{ path('app_admin_album') }}">
+                                <i class="bi bi-images"></i> Novo álbum
+                            </a>
+                        </li>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item ms-3">
+                                <a class="btn btn-danger opacity-75" href="{{ path('app_admin_usuarios') }}">
+                                    <i class="bi bi-person-gear"></i> Usuários
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    <span class="navbar-text">
+                        <span class="navbar-nome-email">{{ app.user.nome }} ({{ app.user.usuario }})</span> <a
+                            href="{{ path('app_admin_logout') }}" class="ms-2 btn btn-secondary btn-sm text-light">Sair</a>
+                    </span>
+                </div>
+            </div>
+        </nav>
+
+    </div>
+    <div class="content-area bg-white rounded p-2" style="margin-top: 4em;">
+        {% block content_area %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

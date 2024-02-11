@@ -1,0 +1,47 @@
+.navbar-header-admin .navbar-nome-email {
+    color: rgba(0,0,0,0.5);
+    vertical-align: middle;
+}
+.cursor-help {
+    cursor: help;
+}
+.text-justify {
+    text-align: justify;
+}
+#datatable-albuns_wrapper .btn-sm {
+    --bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;
+}
+#datatable-albuns_wrapper {
+    margin: 1em .5em;
+}
+#datatable-albuns_wrapper tr.album-criado td {
+    background-color: #d4ffd6 !important
+}
+
+#datatable-albuns_wrapper tr.album-inativo td {
+    background-color: #f8ffd4 !important
+}
+
+#datatable-albuns_wrapper tr.album-excluido td {
+    background-color: #ffd4d4 !important
+}
+
+@media (max-width: 991px) {
+    .navbar-header-admin .navbar-brand {
+        margin: 0 auto 1em;
+    }
+    .navbar-header-admin .navbar-collapse .nav-pills {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1em;
+    }
+    .navbar-header-admin .navbar-collapse .nav-pills .nav-item {
+        margin: 0 1rem !important;
+    }
+    .navbar-header-admin .navbar-collapse .navbar-text {
+        display: block;
+        text-align: center;
+        margin-bottom: 1em;
+    }
+
+}

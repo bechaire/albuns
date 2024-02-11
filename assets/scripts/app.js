@@ -1,14 +1,10 @@
-// import é ecma pattern, preferir
-// require é node
 import '../styles/app.scss';
 
-//import 'bootstrap/scss/bootstrap.scss'; //ou aqui, no lugar do @import no app.scss
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle';
 
-//npm install fontawesome-free-6.2.1 --save-dev
-//npm run dev
+// import jQuery from 'jquery';
 
-//import 'fontawesome-free-6.2.1/js/all.js';
+import { hidatateListOfAlbuns } from './app/admin';
 
 document.addEventListener('DOMContentLoaded', function () {
     //inicialização de elementos que usam a biblioteca popper.js
@@ -20,4 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    hidatateListOfAlbuns();
 });
