@@ -5,24 +5,31 @@
 .cursor-help {
     cursor: help;
 }
+.cursor-pointer {
+    cursor: pointer;
+}
+.cursor-default {
+    cursor: default;
+}
 .text-justify {
     text-align: justify;
 }
-#datatable-albuns_wrapper .btn-sm {
+.dataTables_wrapper .btn-sm {
     --bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;
 }
-#datatable-albuns_wrapper {
+.dataTables_wrapper {
     margin: 1em .5em;
 }
-#datatable-albuns_wrapper tr.album-criado td {
+.dataTables_wrapper tr.album-criado td {
     background-color: #d4ffd6 !important
 }
 
-#datatable-albuns_wrapper tr.album-inativo td {
+.dataTables_wrapper tr.album-inativo td,
+.dataTables_wrapper tr.usuario-inativo td {
     background-color: #f8ffd4 !important
 }
 
-#datatable-albuns_wrapper tr.album-excluido td {
+.dataTables_wrapper tr.album-excluido td {
     background-color: #ffd4d4 !important
 }
 

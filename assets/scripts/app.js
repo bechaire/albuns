@@ -4,7 +4,8 @@ import bootstrap from 'bootstrap/dist/js/bootstrap.bundle';
 
 // import jQuery from 'jquery';
 
-import { hidatateListOfAlbuns } from './app/admin';
+import { hidatateListOfAlbuns } from './app/admin-home';
+import { hidatateListOfUsers } from './app/admin-usuarios';
 
 document.addEventListener('DOMContentLoaded', function () {
     //inicialização de elementos que usam a biblioteca popper.js
@@ -18,4 +19,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     hidatateListOfAlbuns();
+    hidatateListOfUsers();
 });

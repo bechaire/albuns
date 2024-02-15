@@ -73,9 +73,9 @@ function renderOpcoes(data, type, row) {
 
 function adicionaFiltroRemovidos(settings) {
     this.api().column(0).search('status-listavel').draw();
-    let checkSwitch = `<div class="form-check form-switch d-inline-block ms-3">
-        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckExcluidos">
-        <label class="form-check-label" for="switchCheckExcluidos">Exibir Excluídos</label>
+    let checkSwitch = `<div class="form-check form-switch d-inline-block ms-3 cursor-pointer">
+        <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="switchCheckExcluidos">
+        <label class="form-check-label cursor-pointer" for="switchCheckExcluidos">Exibir Excluídos</label>
     </div>`;
 
     document.querySelector("#datatable-albuns_length").insertAdjacentHTML('beforeend', checkSwitch);
@@ -114,7 +114,7 @@ function desativarAlbum(registro) {
 function excluirAlbum(registro) {
     Swal.fire({
         title: `Excluir o álbum "${registro.id}"?`,
-        html: `<p class="text-justify">Ao excluir o álbum <strong>"${registro.titulo}"</strong>, ele entrará na fila de exclusão e será removido dentro de alguns dias, caso se arrependa, clique no seletor "Exbir Excluídos" e reative o álbum clicando em "Editar"</p>`,
+        html: `<p class="text-justify">Ao excluir o álbum <strong>"${registro.titulo}"</strong>, ele entrará na fila de exclusão e será removido dentro de alguns dias, caso se arrependa, clique no seletor "Exibir Excluídos" e reative o álbum clicando em "Editar"</p>`,
         icon: "error",
         showCancelButton: true,
         cancelButtonText: "cancelar",
