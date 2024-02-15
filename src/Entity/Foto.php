@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\FotoRepository;
@@ -16,7 +18,7 @@ class Foto
     #[ORM\Column(name:'idfoto')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 45, nullable: true)]
+    #[ORM\Column(length: 150, nullable: true)]
     private ?string $arquivo = null;
 
     #[ORM\Column(length: 15, nullable: true)]
@@ -27,6 +29,12 @@ class Foto
 
     #[ORM\Column(length: 1)]
     private ?string $destaque = null;
+
+    #[ORM\Column]
+    private ?int $ordem = null;
+
+    #[ORM\Column(length: 15)]
+    private ?string $identificador = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created = null;
@@ -102,6 +110,30 @@ class Foto
     public function setDestaque(string $destaque): static
     {
         $this->destaque = $destaque;
+
+        return $this;
+    }
+
+    public function getOrdem(): ?int
+    {
+        return $this->ordem;
+    }
+
+    public function setOrdem(int $ordem): static
+    {
+        $this->ordem = $ordem;
+
+        return $this;
+    }
+
+    public function getIdentificador(): ?string
+    {
+        return $this->identificador;
+    }
+
+    public function setIdentificador(string $identificador): static
+    {
+        $this->identificador = $identificador;
 
         return $this;
     }

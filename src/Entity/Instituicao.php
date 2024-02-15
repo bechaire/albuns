@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\InstituicaoRepository;
@@ -24,7 +26,7 @@ class Instituicao
         #[ORM\Column(length: 15)]
         public readonly string $telefone,
     
-        #[ORM\Column(length: 75)]
+        #[ORM\Column(length: 150)]
         public readonly string $endereco,
     
         #[ORM\Column(length: 150)]

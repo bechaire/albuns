@@ -24,6 +24,15 @@ class Usuario implements UserInterface
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'usuario')]
     private Collection $albuns;
 
+    #[ORM\Column(length: 65, unique: true)]
+    private ?string $usuario;
+
+    #[ORM\Column(length: 120, unique: true)]
+    private ?string $email;
+
+    #[ORM\Column(length: 65)]
+    private ?string $nome;
+
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
@@ -39,18 +48,12 @@ class Usuario implements UserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated = null;
 
-    public function __construct(
-        #[ORM\Column(length: 65, unique: true)]
-        private ?string $usuario,
-    
-        #[ORM\Column(length: 120, unique: true)]
-        private ?string $email,
-    
-        #[ORM\Column(length: 65)]
-        private ?string $nome,
-    ) {
+    public function __construct(string $usuario, string $email, string $nome) {
         $this->albuns = new ArrayCollection();
 
+        $this->setUsuario($usuario);
+        $this->setEmail($email);
+        $this->setNome($nome);
         $this->setAtivo('S');
         $this->setRoles(['ROLE_USER']);
 
@@ -105,6 +108,10 @@ class Usuario implements UserInterface
     {
         $this->email = mb_strtolower($email);
 
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            throw new \DomainException('E-mail inválido para o usuário');
+        }
+
         return $this;
     }
 
@@ -156,7 +163,7 @@ class Usuario implements UserInterface
         return $this->ultacesso;
     }
 
-    public function setUltacesso(?\DateTimeInterface $ultacesso): static
+    public function setUltacesso(\DateTimeInterface $ultacesso): static
     {
         $this->ultacesso = $ultacesso;
 

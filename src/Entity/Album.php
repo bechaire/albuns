@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\AlbumRepository;
@@ -34,6 +36,9 @@ class Album
     #[ORM\Column(length: 4)]
     private ?string $ano = null;
 
+    #[ORM\Column(length: 350)]
+    private ?string $titulo = null;
+
     #[ORM\Column(length: 1)]
     private ?string $addtag = null;
 
@@ -48,13 +53,13 @@ class Album
 
     public function __construct(
         #[ORM\Column(length: 10)]
-        private ?string $instituicao,
+        private string $instituicao,
     
         #[ORM\Column(type: Types::DATE_MUTABLE)]
-        private ?\DateTimeInterface $data,
+        private \DateTimeInterface $data,
 
         #[ORM\Column(length: 255, nullable: true)]
-        private ?string $local,
+        private string $local,
     ) {
         $this->visitas = new ArrayCollection();
         $this->fotos = new ArrayCollection();
@@ -129,6 +134,18 @@ class Album
     public function getAno(): ?string
     {
         return $this->ano;
+    }
+
+    public function getTitulo(): ?string
+    {
+        return $this->titulo;
+    }
+
+    public function setTitulo(string $titulo): static
+    {
+        $this->titulo = $titulo;
+
+        return $this;
     }
 
     public function getLocal(): ?string
@@ -209,4 +226,5 @@ class Album
     {
         $this->setUpdated(new \DateTimeImmutable());
     }
+
 }

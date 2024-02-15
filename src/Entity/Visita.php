@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\VisitaRepository;
@@ -23,7 +25,7 @@ class Visita
         #[ORM\JoinColumn(name: 'idalbum', referencedColumnName:'idalbum')]
         public readonly Album $album,
 
-        #[ORM\Column(length: 255)]
+        #[ORM\Column(length: 255, nullable: true)]
         public readonly string $userinfo,
     ) {
         $this->datahora = new \DateTimeImmutable();
