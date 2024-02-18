@@ -1,6 +1,7 @@
 import DataTable from 'datatables.net-bs5';
 import language from '../data/datatables-ptbr.json';
 import Swal from "sweetalert2";
+import { slugify } from './utils';
 
 export function hidatateListOfAlbuns() {
     let config = {
@@ -27,12 +28,17 @@ function renderDate(data, type, row) {
     let dateBR = dateObj.toLocaleDateString();
     let monthBR = dateObj.toLocaleDateString('pt-BR', { month: 'long' });
 
-    //se estiver filtrando... busca pela data em ambos os formatos d/m/Y Y-m-d
     //também busca pelo status
     if (type == 'display') {
         return dateBR;
     }
-    return data + ' ' + dateBR + ' ' + monthBR + ' status-' + (row.status == 'X' ? 'removido' : 'listavel');
+
+    //se estiver filtrando... busca pela data em ambos os formatos d/m/Y Y-m-d
+    //também adiciono o caractere "不" em todos os registros não marcados como excluídos
+    //depois, filtro para listar todos os registros que tiverem "不" (não [excluídos])
+    //adiciono um botão, e quando clicado, busco por todos os registros independente deste marcador
+    //isse teve que ser feito assim pois a busca no campo é aproximada e portanto se eu usasse a palavra "listar" ou algo assim, na busca por essa palavra tudo seria exibido, inclusive o que não divesse essa palavra visível na tabela 
+    return data + ' ' + dateBR + ' ' + monthBR + ' ' + (row.status != 'X' ? '不' : '');
 }
 
 function renderTitulo(data, type, row) {
@@ -44,12 +50,16 @@ function renderTitulo(data, type, row) {
         //o retorno é o texto com acentos removidos e com acento, então a busca será feita por todo o resultado (com ou sem acento)
         return result + ' ' + data;
     }
-    return `<a href="/album/${row.id}" target="_blank" class="text-decoration-none text-dark">${data}</a>
+    return `<a href="/album/${row.id}-${slugify(row.titulo)}" target="_blank" class="text-decoration-none text-dark">${data}</a>
         <span class="badge text-bg-light cursor-help" title="Quantidade de fotos"> ${row.qtdfotos}</span>
     `;
 }
 
 function renderOpcoes(data, type, row) {
+    if (type != 'display') {
+        return data;
+    }
+
     if (row.status == 'X') {
         return `<a type="button" class="btn btn-secondary btn-sm w-100 text-start" href="/admin/album/${row.id}">Editar</a>`;
     }
@@ -72,7 +82,7 @@ function renderOpcoes(data, type, row) {
 }
 
 function adicionaFiltroRemovidos(settings) {
-    this.api().column(0).search('status-listavel').draw();
+    this.api().column(0).search('不').draw();
     let checkSwitch = `<div class="form-check form-switch d-inline-block ms-3 cursor-pointer">
         <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="switchCheckExcluidos">
         <label class="form-check-label cursor-pointer" for="switchCheckExcluidos">Exibir Excluídos</label>
@@ -86,7 +96,7 @@ function adicionaFiltroRemovidos(settings) {
             return;
         }
 
-        this.api().column(0).search('status-listavel').draw();
+        this.api().column(0).search('不').draw();
     });
 }
 
