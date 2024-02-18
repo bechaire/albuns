@@ -5,9 +5,9 @@ export function hidatateListOfUsers() {
     let config = {
         language,
         ajax: '/admin/usuarios',
-        pageLength: 25,
-        lengthMenu: [25, 50, 75, 100],
-        order: [[0, 'desc'], [2, 'asc'], [1, 'asc']],
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        order: [[0, 'desc'], [1, 'asc']],
         columns: [
             { data: 'ativo', width: "8%", className: 'dt-center', searchable: false, render: renderAtivo  },
             { data: 'nome', width: "50%", className: 'dt-head-center dt-body-left', render: renderNome },
@@ -16,6 +16,7 @@ export function hidatateListOfUsers() {
             { data: null, width: "7%", className: 'dt-center', searchable: false, orderable: false, render: renderOpcoes },
         ],
         createdRow: processaLinha,
+        initComplete: adicionaBotaoNovoUsuario,
     }
     new DataTable('#datatable-usuarios', config);
 }
@@ -48,4 +49,12 @@ function renderAtivo(data, type, row) {
 
 function renderAdmin(data, type, row) {
     return (data.roles.indexOf('ROLE_ADMIN') >= 0) ? 'Sim' : 'Não';
+}
+
+function adicionaBotaoNovoUsuario(settings) {
+    let addButton = `<a href="/admin/usuarios/new" class="btn btn-primary opacity-75 btn-sm align-top ms-3">
+        <i class="bi bi-shield-plus"></i> Adicionar Usuário
+    </a>`;
+
+    document.querySelector("#datatable-usuarios_length").insertAdjacentHTML('beforeend', addButton);
 }
