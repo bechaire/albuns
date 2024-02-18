@@ -33,6 +33,22 @@
     background-color: #ffd4d4 !important
 }
 
+.app-form-check-inline .form-check {
+    margin-left: 1.5em;
+}
+
+.app-form-check-inline .form-check:first-child {
+    margin-left: 0;
+}
+
+.form-label.required:after,
+.col-form-label.required:after {
+    content: '*';
+    color: red;
+    display: inline-block;
+    margin-left: 0.3em
+}
+
 @media (max-width: 991px) {
     .navbar-header-admin .navbar-brand {
         margin: 0 auto 1em;

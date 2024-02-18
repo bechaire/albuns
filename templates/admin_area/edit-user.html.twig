@@ -1,0 +1,30 @@
+{% extends 'admin_area/base-admin.html.twig' %}
+
+{% block content_area %}
+<div class="form-wrapper mt-2 mx-3 mb-4">
+  <h2 class="border-bottom pb-2 m-3 mb-4">Cadastrar novo usuário</h2>
+
+  {{ form_start(userForm) }}
+  
+  {{ form_errors(userForm) }}
+  
+  <div class="row mb-3">
+    <div class="col-md-5">{{ form_row(userForm.usuario) }}</div>
+    <div class="col-md-4">{{ form_row(userForm.papel) }}</div>
+    <div class="col-md-3">{{ form_row(userForm.ativo) }}</div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md">{{ form_row(userForm.nome) }}</div>
+    <div class="col-md">{{ form_row(userForm.email) }}</div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-3 offset-md-5 mt-3">
+      {{ form_widget(userForm.save, {attr: {class: 'btn-dark w-100'}}) }}
+    </div>
+  </div>
+
+  {{ form_end(userForm) }}
+</div>
+{% endblock %}

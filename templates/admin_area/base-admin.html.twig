@@ -27,7 +27,7 @@
                         </li>
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item ms-3">
-                                <a class="btn btn-danger opacity-75" href="{{ path('app_admin_usuarios') }}">
+                                <a class="btn btn-danger opacity-75" href="{{ path('app_admin_users_list') }}">
                                     <i class="bi bi-person-gear"></i> Usuários
                                 </a>
                             </li>
@@ -43,6 +43,13 @@
 
     </div>
     <div class="content-area bg-white rounded p-2" style="margin-top: 4em;">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} m-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
         {% block content_area %}{% endblock %}
     </div>
 </div>
