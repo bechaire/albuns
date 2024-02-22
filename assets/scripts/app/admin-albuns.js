@@ -4,13 +4,13 @@ export function manipulaFormularioAlbum() {
     let formAlbum = document.querySelector('form.album-fotos');
     let containerUpload = document.querySelector('.container-upload');
 
-    personalizaSelectStatus(formAlbum);
+    ajustaCamposFormularioManutencaoAlbum(formAlbum);
     personalizaContainerUpload(containerUpload);
 }
 
-function personalizaSelectStatus(formAlbum) {
+function ajustaCamposFormularioManutencaoAlbum(formAlbum) {
     if (!formAlbum) return;
-    
+
     let albumNovo = formAlbum.classList.contains('criando');
     let oStatus = formAlbum.elements['album[status]'];
 
@@ -22,35 +22,58 @@ function personalizaSelectStatus(formAlbum) {
     removeOptionByValue(oStatus, 'C');
 }
 
-function personalizaContainerUpload(container) {
-    let progressInfo = {};
+function personalizaContainerUpload(containerUpload) {
+    if (!containerUpload) return;
 
-    progressInfo = {
-        arquivos: [{size:2},{size:2},{size:2},{size:4},{size:4},{size:4},{size:4}],
+    let input = containerUpload.querySelector('input[type=file]');
+    let button = containerUpload.querySelector('button');
+
+    let uploadInfo = {
         enviando: false,
-        idxArquivoAtual: 5,
+        idxArquivoAtual: 0,
+        bytesEnviados: 0,
+        bytesTotais: 0,
+        input,
+        button
     };
-    updateProgressBar(progressInfo);
+
+    input.addEventListener('change', () => {
+        atualizaInformacoesUpload(uploadInfo);
+    });
+
+    button.addEventListener('click', (event) => {
+        event.preventDefault();
+        enviarArquivos(uploadInfo);
+    });
+
+}
+
+function atualizaInformacoesUpload(uploadInfo) {
+    //arquivos ordenados por nome
+    uploadInfo.arquivos = [...uploadInfo.input.files].sort((a, b) => a.name.localeCompare(b.name));
+    //bytes totais a serem enviados
+    uploadInfo.bytesTotais = uploadInfo.arquivos.reduce((acumulador, arquivo) => acumulador + arquivo.size, 0);
+    //atualiza visão da barra de status
+    updateProgressBar(uploadInfo);
 }
 
 function updateProgressBar(data) {
     let container = document.querySelector('.progressbar-container');
 
-    if (!data?.arquivos.length) {
+    if (!data.arquivos.length) {
         container.style.display = 'none';
         return;
     }
     container.style.display = 'block';
 
-    let percentualAtual = (!data.enviando) ? 0 : Math.ceil(((data.idxArquivoAtual+1) / data.arquivos.length) * 100);
-    let bytesTotal = data.arquivos.reduce((acumulador, arquivo)=>acumulador+arquivo.size, 0);
-    let totalMegabytes = humanFileSize(bytesTotal).replace(' ', '');
+    let percentualAtual = (!data.enviando) ? 0 : Math.ceil(((data.idxArquivoAtual + 1) / data.arquivos.length) * 100);
+    let totalMegabytes = humanFileSize(data.bytesTotais).replace(' ', '');
 
     let classProgresso = '';
     let textoProgresso = `&nbsp;&nbsp;Serão enviados ${data.arquivos.length} arquivos, num total de ${totalMegabytes}`;
     if (data.enviando) {
         classProgresso = 'bg-danger progress-bar-striped progress-bar-animated';
-        textoProgresso = `Enviando imagem ${data.idxArquivoAtual+1} de ${data.arquivos.length} (${percentualAtual}% = 75MB de ${totalMegabytes})`;
+        textoProgresso = `Enviando imagem ${data.idxArquivoAtual + 1} de ${data.arquivos.length} (${percentualAtual}% = 75MB de ${totalMegabytes})`;
     }
 
     container.innerHTML = `
@@ -60,4 +83,13 @@ function updateProgressBar(data) {
         </div>
     </div>
     `;
+}
+
+function enviarArquivos(uploadInfo) {
+    if (!uploadInfo.input.files.length) {
+        return;
+    }
+
+    uploadInfo.input.disabled = true;
+    uploadInfo.button.disabled = true;
 }
