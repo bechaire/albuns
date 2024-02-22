@@ -22,4 +22,15 @@ class InstituicaoRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Instituicao::class);
     }
+
+    public function getSiglas(): array
+    {
+        $siglas =  $this->createQueryBuilder('i')
+                        ->select('i.sigla')
+                        ->orderBy('i.sigla', 'ASC')
+                        ->getQuery()
+                        ->getResult();
+        
+        return array_column($siglas, 'sigla');
+    }
 }

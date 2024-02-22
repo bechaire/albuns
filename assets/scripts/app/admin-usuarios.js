@@ -1,7 +1,7 @@
 import DataTable from 'datatables.net-bs5';
 import language from '../data/datatables-ptbr.json';
 
-export function hidatateListOfUsers() {
+export function hidratarListaDeUsuarios() {
     let config = {
         language,
         ajax: '/admin/usuarios',

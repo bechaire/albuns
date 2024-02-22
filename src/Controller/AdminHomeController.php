@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\DTO\AlbumInputDTO;
 use App\DTO\UsuarioInputDTO;
 use App\Entity\Album;
 use App\Entity\Usuario;
+use App\Form\AlbumType;
 use App\Form\UsuarioType;
 use App\Repository\AlbumRepository;
 use App\Repository\UsuarioRepository;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -71,7 +74,7 @@ class AdminHomeController extends AbstractController
         $userForm = $this->createForm(UsuarioType::class, $userDTO)
                          ->handleRequest($request);
 
-        if (!$userForm->isValid()) {
+        if (!$userForm->isSubmitted() || !$userForm->isValid()) {
             return $this->render('admin_area/edit-user.html.twig', compact('userForm'));
         }
 
@@ -113,7 +116,7 @@ class AdminHomeController extends AbstractController
         $userForm = $this->createForm(UsuarioType::class, $userDTO, ['is_edit' => true])
                          ->handleRequest($request);
 
-        if (!$userForm->isValid()) {
+        if (!$userForm->isSubmitted() || !$userForm->isValid()) {
             return $this->render('admin_area/edit-user.html.twig', compact('userForm'));
         }
 
@@ -130,18 +133,78 @@ class AdminHomeController extends AbstractController
         return $this->redirectToRoute('app_admin_users_list');
     }
 
-    #[Route('/admin/album', name: 'app_admin_album', methods: ['GET'])]
-    public function adminAlbumAdd(Album $album): Response
+    #[Route('/admin/albuns/new', name: 'app_admin_album_add', methods: ['GET', 'POST'])]
+    public function adminAlbumAdd(Request $request, UserInterface $user): Response
     {
-        return new Response('<body>Acessou /admin/album via GET</body>');
+        $albumDTO = new AlbumInputDTO();
+
+        if ($request->isMethod('GET')) {
+            $albumForm = $this->createForm(AlbumType::class, $albumDTO);
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        }
+
+        $albumForm = $this->createForm(AlbumType::class, $albumDTO)
+                         ->handleRequest($request);
+
+        if (!$albumForm->isSubmitted() || !$albumForm->isValid()) {
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        }
+
+        try {
+            $this->albumRepository->storeFromDTO(dto: $albumDTO, flush: true);
+        } catch(UniqueConstraintViolationException) {
+            $this->addFlash('warning', 'Usuário ou E-mail já cadastrados previamente, caso seja um usuário já existente, reative a conta');
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        } catch(Exception $e) {
+            $this->addFlash('warning', $e->getMessage());
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        }
+
+        return $this->redirectToRoute('app_admin_home');
     }
 
-    #[Route('/admin/album/{album}', name: 'app_admin_album_edit', methods: ['GET'])]
-    public function adminAlbumEdit(Album $album): Response
+    #[Route('/admin/albuns/{album}', name: 'app_admin_album_edit', methods: ['GET', 'PATCH'])]
+    public function adminAlbumEdit(?Album $album, Request $request): Response
     {
-        $titulo = strtolower((string) $this->slugger->slug($album->getTitulo()));
-        $id = $album->getId();
-        return new Response('<body>Acessou /admin/album/' . $id . '-' . $titulo . ' via GET</body>');
+
+        if (!$album) {
+            return $this->redirectToRoute('app_admin_home');
+        }
+
+        $albumDTO = new AlbumInputDTO(
+            $album->getInstituicao(),
+            $album->getTitulo(),
+            $album->getData(),
+            $album->getLocal(),
+            $album->getStatus(),
+            $album->getAddtag(),
+            $album->getUsuario()->getNome(),
+            $album->getCreated(),
+        );
+
+        if ($request->isMethod('GET')) {
+            $albumForm = $this->createForm(AlbumType::class, $albumDTO, ['is_edit'=>true]);
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        }
+
+        $albumForm = $this->createForm(AlbumType::class, $albumDTO, ['is_edit'=>true])
+                         ->handleRequest($request);
+
+        if (!$albumForm->isSubmitted() || !$albumForm->isValid()) {
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        }
+
+        try {
+            $this->albumRepository->storeFromDTO(dto: $albumDTO, album: $album, flush: true);
+        } catch(UniqueConstraintViolationException) {
+            $this->addFlash('warning', 'Usuário ou E-mail já cadastrados previamente, caso seja um usuário já existente, reative a conta');
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        } catch(Exception $e) {
+            $this->addFlash('warning', $e->getMessage());
+            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+        }
+
+        return $this->redirectToRoute('app_admin_home');
     }
 
     #[Route('/admin/album/{album}', name: 'app_admin_album_delete', methods: ['DELETE'])]

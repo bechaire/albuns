@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use Alura\Leilao\Model\Usuario;
+use App\DTO\AlbumInputDTO;
 use App\Entity\Album;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @extends ServiceEntityRepository<Album>
@@ -18,8 +22,11 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AlbumRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private ValidatorInterface $validator,
+        private Security $security,
+    ) {
         parent::__construct($registry, Album::class);
     }
 
@@ -28,35 +35,47 @@ class AlbumRepository extends ServiceEntityRepository
         $dql = <<<DQL
             SELECT a.id, a.instituicao, a.data, a.titulo, a.acessos, a.status, COUNT(f) qtdfotos
             FROM App\Entity\Album a
-            JOIN a.fotos f
+            LEFT JOIN a.fotos f
             GROUP BY a.id, a.instituicao, a.data, a.titulo, a.acessos, a.status
             ORDER BY a.data DESC, a.titulo, a.instituicao
         DQL;
         return $this->getEntityManager()->createQuery($dql)->getResult();
     }
 
-    //    /**
-    //     * @return Album[] Returns an array of Album objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function add(Album $entity, bool $flush=false): void
+    {
+        $this->getEntityManager()->persist($entity);
 
-    //    public function findOneBySomeField($value): ?Album
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function storeFromDTO(AlbumInputDTO $dto, ?Album $album=null, bool $flush=false): void
+    {
+        $errors = $this->validator->validate($dto);
+        if (count($errors)) {
+            throw new \DomainException("Falha ao validar dados recebidos\n\n" . (string) $errors);
+        }
+
+        if (!$album) {
+            $album = new Album(
+                $dto->instituicao,
+                $dto->data,
+                $dto->local,
+                $dto->titulo,
+            );
+            $album->setUsuario($this->security->getUser());
+        } else {
+            $album->setInstituicao($dto->instituicao);
+            $album->setData($dto->data);
+            $album->setLocal($dto->local);
+            $album->setTitulo($dto->titulo);
+        }
+
+        $album->setStatus($dto->status);
+        $album->setAddtag($dto->addtag);
+
+        $this->add($album, $flush);
+    }
 }

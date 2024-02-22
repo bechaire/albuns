@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form;
 
 use App\DTO\UsuarioInputDTO;
@@ -17,9 +19,9 @@ class UsuarioType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('usuario', options: ['label'=>'Nome do usuário (como no AD/LDAP)'])
-            ->add('nome', options: ['label'=>'Nome completo'])
-            ->add('email', options: ['label'=>'E-mail para alertas'])
+            ->add('usuario', options: ['label' => 'Nome do usuário (como no AD/LDAP)'])
+            ->add('nome', options: ['label' => 'Nome completo'])
+            ->add('email', options: ['label' => 'E-mail para alertas'])
             ->add('papel', ChoiceType::class, [
                 'label' => 'Papel (nível de acesso)',
                 'help' => 'Administrador pode criar usuários',
@@ -36,9 +38,9 @@ class UsuarioType extends AbstractType
                 ]
             ])
             ->add('save', SubmitType::class, ['label' => $options['is_edit'] ? 'Salvar Alterações' : 'Adicionar Usuário'])
-            ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
-        ;
-        $builder->get('email')->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            ->setMethod($options['is_edit'] ? 'PATCH' : 'POST');
+
+        $builder->get('email')->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $email = $event->getData();
             $event->setData(strtolower($email));
         });
@@ -50,5 +52,7 @@ class UsuarioType extends AbstractType
             'data_class' => UsuarioInputDTO::class,
             'is_edit' => false
         ]);
+
+        $resolver->setAllowedTypes('is_edit', 'bool');
     }
 }

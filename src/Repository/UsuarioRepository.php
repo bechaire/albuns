@@ -38,6 +38,10 @@ class UsuarioRepository extends ServiceEntityRepository
 
     public function storeFromDTO(UsuarioInputDTO $dto, ?Usuario $usuario=null, bool $flush=false): void
     {
+        $errors = $this->validator->validate($dto);
+        if (count($errors)) {
+            throw new \DomainException("Falha ao validar dados recebidos\n\n" . (string) $errors);
+        }
         
         if (!$usuario) {
             $usuario = new Usuario(

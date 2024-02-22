@@ -3,7 +3,7 @@ import language from '../data/datatables-ptbr.json';
 import Swal from "sweetalert2";
 import { slugify } from './utils';
 
-export function hidatateListOfAlbuns() {
+export function hidratarListaDeAlbuns() {
     let config = {
         language,
         ajax: '/admin/albuns',
@@ -65,13 +65,13 @@ function renderOpcoes(data, type, row) {
     }
 
     return `<div class="btn-group">
-      <a type="button" class="btn btn-secondary btn-sm" href="/admin/album/${row.id}">Editar</a>
+      <a type="button" class="btn btn-secondary btn-sm" href="/admin/albuns/${row.id}">Editar</a>
       <a type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="visually-hidden">Toggle Dropdown</span>
       </a>
       <ul class="dropdown-menu">
         ${row.status == 'A' ? `
-            <li><a class="dropdown-item" href="/album/${row.id}" target="_blank"><i class="bi bi-eye"></i> Ver publicação</a></li>
+            <li><a class="dropdown-item" href="/album/${row.id}-${slugify(row.titulo)}" target="_blank"><i class="bi bi-eye"></i> Ver publicação</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item btn-desativar" href="#"><i class="bi bi-eye-slash"></i> Ocultar/Desativar</a></li>
             <li><hr class="dropdown-divider"></li>

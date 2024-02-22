@@ -48,6 +48,23 @@
     display: inline-block;
     margin-left: 0.3em
 }
+.col-form-label {
+    line-height: 1;
+    margin-bottom: .5rem;
+}
+
+.container-upload {
+    background-color: var(--bs-tertiary-bg);
+}
+.container-upload .progress {
+    height: 2em;
+}
+.container-upload .progress-bar {
+    text-shadow: 0.1em 0.1em 0.3em #000;
+}
+.container-upload .progressbar-container {
+    display: none;
+}
 
 @media (max-width: 991px) {
     .navbar-header-admin .navbar-brand {

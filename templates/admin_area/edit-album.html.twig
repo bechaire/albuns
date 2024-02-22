@@ -1,0 +1,67 @@
+{% extends 'admin_area/base-admin.html.twig' %}
+{% set acao = (albumForm.vars.method == 'POST') ? 'Cadastrar novo' : 'Alterar' %}
+{% set albumNovo = albumForm.criador.vars.value == "" %}
+
+{% block content_area %}
+<div class="form-wrapper mt-2 mx-3 mb-4">
+  <h2 class="border-bottom pb-2 m-3 mb-4">{{ acao }} álbum</h2>
+
+  {{ form_start(albumForm, {attr: {class: 'album-fotos ' ~ (albumNovo ? 'criando' : 'editando')} }) }}
+
+  {{ form_errors(albumForm) }}
+
+  <div class="row mb-3">
+    <div class="col-md-2">{{ form_row(albumForm.instituicao) }}</div>
+    <div class="col-md-8">{{ form_row(albumForm.titulo) }}</div>
+    <div class="col-md-2">{{ form_row(albumForm.data) }}</div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-3">{{ form_row(albumForm.local) }}</div>
+    <div class="col-md-2">{{ form_row(albumForm.status) }}</div>
+    <div class="col-md-2">{{ form_row(albumForm.addtag) }}</div>
+    {% if not albumNovo %}
+      <div class="col-md-3">{{ form_row(albumForm.criador) }}</div>
+      <div class="col-md-2">{{ form_row(albumForm.created) }}</div>
+    {% endif %}
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-2 offset-md-5 mt-3">
+      {{ form_widget(albumForm.save, {attr: {class: 'btn-dark w-100'}}) }}
+    </div>
+  </div>
+
+  {{ form_row(albumForm._token) }}
+  {{ form_end(albumForm, {render_rest: false}) }}
+
+</div>
+{% if not albumNovo %}
+<hr class="my-4 mx-5">
+
+<div class="m-3 p-2 container-upload rounded-2">
+  <div class="row">
+    <div class="col">
+      <h5 class="text-center">Selecione as imagens para adicionar ao álbum</h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="offset-md-2 col-md-8">
+      <form action="/admin/albuns" onsubmit="return false">
+        <div class="input-group">
+          <input type="file" class="form-control" aria-label="Upload" name="imagens[]" multiple
+            accept="image/*,image/heic">
+          <button class="btn btn-primary opacity-75" type="button">Enviar</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-12 py-2 progressbar-container"></div>
+  </div>
+</div>
+
+<div class="container-fotos">
+
+</div>
+{% endif %}
+
+{% endblock %}

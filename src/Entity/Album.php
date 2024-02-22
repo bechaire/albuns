@@ -30,14 +30,12 @@ class Album
     #[ORM\OneToMany(targetEntity: Foto::class, mappedBy: 'album')]
     private Collection $fotos;
 
-    #[ORM\Column(length: 1, options: ['comment'=>'A = Ativo | E = Em Espera | I  = Inativo (Remover futuramente)'])]
+    //\App\Enum\AlbumStatusEnum
+    #[ORM\Column(length: 1, options: ['comment'=>'A = Ativo | I  = Inativo | C = Criado | X = Excluído'])]
     private ?string $status = null;
 
     #[ORM\Column(length: 4)]
     private ?string $ano = null;
-
-    #[ORM\Column(length: 350)]
-    private ?string $titulo = null;
 
     #[ORM\Column(length: 1)]
     private ?string $addtag = null;
@@ -60,13 +58,17 @@ class Album
 
         #[ORM\Column(length: 255, nullable: true)]
         private string $local,
+
+        #[ORM\Column(length: 350)]
+        private string $titulo
     ) {
         $this->visitas = new ArrayCollection();
         $this->fotos = new ArrayCollection();
 
+        $this->ano = $data->format('Y');
         $this->setAcessos(0);
         $this->setAddtag('S');
-        $this->setStatus('E');
+        $this->setStatus('C');
 
         $this->setCreated(new \DateTimeImmutable());
         if ($this->getUpdated() === null) {
@@ -74,12 +76,12 @@ class Album
         }
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getUsuario(): ?Usuario
+    public function getUsuario(): Usuario
     {
         return $this->usuario;
     }
@@ -100,14 +102,14 @@ class Album
         return $this->fotos;
     }
 
-    public function setUsuario(?Usuario $usuario): static
+    public function setUsuario(Usuario $usuario): static
     {
         $this->usuario = $usuario;
 
         return $this;
     }
 
-    public function getInstituicao(): ?string
+    public function getInstituicao(): string
     {
         return $this->instituicao;
     }
@@ -119,7 +121,7 @@ class Album
         return $this;
     }
 
-    public function getData(): ?\DateTimeInterface
+    public function getData(): \DateTimeInterface
     {
         return $this->data;
     }
@@ -131,12 +133,12 @@ class Album
         return $this;
     }
 
-    public function getAno(): ?string
+    public function getAno(): string
     {
         return $this->ano;
     }
 
-    public function getTitulo(): ?string
+    public function getTitulo(): string
     {
         return $this->titulo;
     }
@@ -148,19 +150,19 @@ class Album
         return $this;
     }
 
-    public function getLocal(): ?string
+    public function getLocal(): string
     {
         return $this->local;
     }
 
-    public function setLocal(?string $local): static
+    public function setLocal(string $local): static
     {
         $this->local = $local;
 
         return $this;
     }
 
-    public function getAddtag(): ?string
+    public function getAddtag(): string
     {
         return $this->addtag;
     }
@@ -172,7 +174,7 @@ class Album
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -184,12 +186,12 @@ class Album
         return $this;
     }
 
-    public function getAcessos(): ?int
+    public function getAcessos(): int
     {
         return $this->acessos;
     }
 
-    public function setAcessos(?int $acessos): static
+    public function setAcessos(int $acessos): static
     {
         $this->acessos = $acessos;
 
