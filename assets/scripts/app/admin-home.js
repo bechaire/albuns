@@ -9,7 +9,7 @@ export function hidratarListaDeAlbuns() {
         ajax: '/admin/albuns',
         pageLength: 25,
         lengthMenu: [25, 75, 250, 1000],
-        order: [[0, 'desc'], [2, 'asc'], [1, 'asc']],
+        order: [],
         columns: [
             { data: 'data', className: 'dt-center', render: renderDate },
             { data: 'instituicao', className: 'dt-center' },
@@ -17,8 +17,8 @@ export function hidratarListaDeAlbuns() {
             { data: 'acessos', className: 'dt-center', searchable: false },
             { data: null, className: 'dt-center', searchable: false, orderable: false, render: renderOpcoes },
         ],
-        initComplete: adicionaFiltroRemovidos,
-        createdRow: processaLinha,
+        initComplete: personalizaGrid,
+        createdRow: processaLinha
     }
     new DataTable('#datatable-albuns', config);
 }
@@ -61,7 +61,7 @@ function renderOpcoes(data, type, row) {
     }
 
     if (row.status == 'X') {
-        return `<a type="button" class="btn btn-secondary btn-sm w-100 text-start" href="/admin/album/${row.id}">Editar</a>`;
+        return `<a type="button" class="btn btn-secondary btn-sm w-100 text-start" href="/admin/albuns/${row.id}">Editar</a>`;
     }
 
     return `<div class="btn-group">
@@ -81,8 +81,12 @@ function renderOpcoes(data, type, row) {
     </div>`;
 }
 
-function adicionaFiltroRemovidos(settings) {
-    this.api().column(0).search('不').draw();
+function personalizaGrid(settings) {
+    adicionaFiltroRemovidos(this);
+}
+
+function adicionaFiltroRemovidos(oDatatable) {
+    oDatatable.api().column(0).search('不').draw();
     let checkSwitch = `<div class="form-check form-switch d-inline-block ms-3 cursor-pointer">
         <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="switchCheckExcluidos">
         <label class="form-check-label cursor-pointer" for="switchCheckExcluidos">Exibir Excluídos</label>
@@ -92,11 +96,11 @@ function adicionaFiltroRemovidos(settings) {
 
     document.querySelector('#switchCheckExcluidos').addEventListener('change', e => {
         if (e.target.checked) {
-            this.api().column(0).search('').draw();
+            oDatatable.api().column(0).search('').draw();
             return;
         }
 
-        this.api().column(0).search('不').draw();
+        oDatatable.api().column(0).search('不').draw();
     });
 }
 
@@ -124,7 +128,9 @@ function desativarAlbum(registro) {
 function excluirAlbum(registro) {
     Swal.fire({
         title: `Excluir o álbum "${registro.id}"?`,
-        html: `<p class="text-justify">Ao excluir o álbum <strong>"${registro.titulo}"</strong>, ele entrará na fila de exclusão e será removido dentro de alguns dias, caso se arrependa, clique no seletor "Exibir Excluídos" e reative o álbum clicando em "Editar"</p>`,
+        html: `<p class="text-justify">Ao excluir o álbum <strong>"${registro.titulo}"</strong>, 
+                ele entrará na fila de exclusão e será removido dentro de alguns dias, caso se arrependa, 
+                clique no seletor "Exibir Excluídos" e reative o álbum clicando em "Editar"</p>`,
         icon: "error",
         showCancelButton: true,
         cancelButtonText: "cancelar",
