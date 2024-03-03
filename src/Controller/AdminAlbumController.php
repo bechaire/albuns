@@ -90,17 +90,17 @@ class AdminAlbumController extends AbstractController
                          ->handleRequest($request);
 
         if (!$albumForm->isSubmitted() || !$albumForm->isValid()) {
-            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+            return $this->render('admin_area/edit-album.html.twig', ['albumForm'=>$albumForm, 'idalbum'=>$album->getId()]);
         }
 
         try {
             $this->albumRepository->storeFromDTO(dto: $albumDTO, album: $album, flush: true);
         } catch(UniqueConstraintViolationException) {
             $this->addFlash('warning', 'Usuário ou E-mail já cadastrados previamente, caso seja um usuário já existente, reative a conta');
-            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+            return $this->render('admin_area/edit-album.html.twig', ['albumForm'=>$albumForm, 'idalbum'=>$album->getId()]);
         } catch(Exception $e) {
             $this->addFlash('warning', $e->getMessage());
-            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+            return $this->render('admin_area/edit-album.html.twig', ['albumForm'=>$albumForm, 'idalbum'=>$album->getId()]);
         }
 
         return $this->redirectToRoute('app_admin_albuns_edit', ['album' => $album->getId()]);
