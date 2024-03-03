@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Album;
 use App\Exception\ImageException;
 use App\Interface\ImageFacadeInterface;
+use App\Repository\AlbumRepository;
 use App\Repository\FotoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,12 +14,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AlbumController extends AbstractController
 {
     public function __construct(
+        private AlbumRepository $albumRepository,
         private FotoRepository $fotoRepository,
         private Filesystem $filesystem,
         private ImageFacadeInterface $image,
@@ -29,9 +31,9 @@ class AlbumController extends AbstractController
     }
 
     #[Route('/images/cache/{idalbum}/{tamanho}/{arquivo}', name: 'app_exibe_imagem', methods: ['GET'])]
-    public function exibeImagem(int $idalbum, string $tamanho, string $arquivo): Response
+    public function exibeImagem(int $idalbum, string $tamanho, string $arquivo, Request $request): Response
     {
-        $pathArquivoCriado = $this->cacheiaArquivoSolicitado($idalbum, $tamanho, $arquivo);
+        $pathArquivoCriado = $this->cacheiaArquivoSolicitado($idalbum, $tamanho, $arquivo, $request);
         return new BinaryFileResponse(
             file: $pathArquivoCriado,
             autoEtag: true,
@@ -39,11 +41,11 @@ class AlbumController extends AbstractController
         );
     }
 
-    private function cacheiaArquivoSolicitado(int $idalbum, string $tamanho, string $arquivo): string
+    private function cacheiaArquivoSolicitado(int $idalbum, string $tamanho, string $arquivo, Request $request): string
     {
         $identificador = str_ireplace(['.jpg', '.jpeg', '.jfif'], '', $arquivo);
 
-        $album = $this->entityManager->getReference(Album::class, $idalbum);
+        $album = $this->albumRepository->find($idalbum);
 
         $foto = $this->fotoRepository->getInfoFoto($album, $identificador);
         if (!$foto) {
@@ -94,6 +96,12 @@ class AlbumController extends AbstractController
             }
 
             $this->image->thumb($tamanhoPX);
+
+            if ($tamanho == 'normal' && $album->getAddtag() == 'S') {
+                $tagDominio = strpos($request->getSchemeAndHttpHost(), 'cfjl.com.br') ? 'cfjl.com.br' : 'fahor.com.br';
+                $this->image->addTag($tagDominio);
+            }
+
             $this->image->saveAsJpeg(compress: $compressaoJpeg, newFilePath: $pathArquivoDestino);
         } catch (ImageException) {
             $this->log->error('Não foi possível criar o arquivo de destino', [$pathArquivoDestino]);

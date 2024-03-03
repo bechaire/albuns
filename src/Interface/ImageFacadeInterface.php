@@ -10,6 +10,7 @@ interface ImageFacadeInterface
     public function flipV(): void;
     public function flipH(): void;
     public function strip(): void;
+    public function addTag(string $texto): void;
     public function thumb(int $maxSide): void;
     public function saveAsJpeg(int $compress, bool $removeOriginal = false, string $newFilePath = ''): void;
 }

@@ -6,6 +6,8 @@ namespace App\Facade;
 
 use Imagick;
 use App\Interface\ImageFacadeInterface;
+use ImagickDraw;
+use ImagickPixel;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ImageImagickFacade implements ImageFacadeInterface
@@ -77,6 +79,52 @@ class ImageImagickFacade implements ImageFacadeInterface
         $this->image->thumbnailImage($maxSide, $maxSide, true);
     }
 
+    public function addTag(string $texto): void
+    {
+        // Define a fonte e estilo do texto
+        $fonte = '/var/www/fonts/arialbd.ttf';
+        $tamanhoFonte = 20;
+        $corTexto = new ImagickPixel('white');
+        $corSombra = new ImagickPixel('black');
+        $estiloFonte = Imagick::STYLE_NORMAL;
+
+        // Cria um novo objeto de desenho
+        $desenho = new ImagickDraw();
+
+        // Define a fonte, tamanho e estilo
+        $desenho->setFont($fonte);
+        $desenho->setFontSize($tamanhoFonte);
+        $desenho->setFontStyle($estiloFonte);
+
+        // Obtém as dimensões da imagem
+        $larguraImagem = $this->image->getImageWidth();
+        $alturaImagem = $this->image->getImageHeight();
+
+        // Obtém as dimensões do texto
+        $metrica = $this->image->queryFontMetrics($desenho, $texto);
+        $larguraTexto = $metrica['textWidth'];
+        $alturaTexto = $metrica['textHeight'];
+
+        // Define a posição do texto na imagem (para a sombra)
+        $posicaoX = $larguraImagem - $larguraTexto - 8; // Deslocamento de 2 pixels
+        $posicaoY = $alturaImagem - $alturaTexto + 12; // Deslocamento de 2 pixels
+
+        // Desenha a sombra do texto na imagem
+        $desenho->setFillColor($corSombra); // Define a cor da sombra
+        $desenho->setStrokeAntialias(false);
+        $this->image->annotateImage($desenho, $posicaoX, $posicaoY, 0, $texto);
+
+        // Define a cor do texto para branco
+        $desenho->setFillColor($corTexto); // Define a cor do texto para branco
+
+        // Define a posição do texto na imagem
+        $posicaoX = $larguraImagem - $larguraTexto - 10; // 10 pixels de margem direita
+        $posicaoY = $alturaImagem - $alturaTexto + 10; // 10 pixels de margem inferior
+
+        // Desenha o texto principal na imagem
+        $this->image->annotateImage($desenho, $posicaoX, $posicaoY, 0, $texto);
+    }
+
     public function saveAsJpeg(int $compress, bool $removeOriginal = false, string $newFilePath = ''): void
     {
         $this->image->setImageFormat('jpeg');
@@ -95,5 +143,7 @@ class ImageImagickFacade implements ImageFacadeInterface
         $this->image->autoOrient();
 
         $this->image->writeImage($newFilePath);
+
+        $this->image->destroy();
     }
 }
