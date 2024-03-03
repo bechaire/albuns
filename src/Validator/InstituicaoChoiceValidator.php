@@ -15,7 +15,7 @@ class InstituicaoChoiceValidator extends ConstraintValidator
     ) {
     }
 
-    public function validate(mixed $value, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         $choices = $this->instituicaoRepository->getSiglas();
 
