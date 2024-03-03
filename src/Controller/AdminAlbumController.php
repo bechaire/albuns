@@ -11,6 +11,7 @@ use App\Repository\AlbumRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,7 +21,15 @@ class AdminAlbumController extends AbstractController
 {
     public function __construct(
         private AlbumRepository $albumRepository,
+        private Filesystem $filesystem,
     ) {
+    }
+
+    #[Route('/admin/albuns/purge', name: 'app_admin_albuns_purge', methods: ['POST'])]
+    public function adminAlbumPurge(): Response
+    {
+        $this->filesystem->remove($this->getParameter('app.albuns.cache.path'));
+        return $this->json(['status'=>'success']);
     }
 
     #[Route('/admin/albuns/new', name: 'app_admin_albuns_add', methods: ['GET', 'POST'])]
@@ -41,7 +50,7 @@ class AdminAlbumController extends AbstractController
         }
 
         try {
-            $this->albumRepository->storeFromDTO(dto: $albumDTO, flush: true);
+            $idNovoAlbum = $this->albumRepository->storeFromDTO(dto: $albumDTO, flush: true);
         } catch(UniqueConstraintViolationException) {
             $this->addFlash('warning', 'Usuário ou E-mail já cadastrados previamente, caso seja um usuário já existente, reative a conta');
             return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
@@ -50,7 +59,7 @@ class AdminAlbumController extends AbstractController
             return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
         }
 
-        return $this->redirectToRoute('app_admin_home');
+        return $this->redirectToRoute('app_admin_albuns_edit', ['album' => $idNovoAlbum]);
     }
 
     #[Route('/admin/albuns/{album}', name: 'app_admin_albuns_edit', methods: ['GET', 'PATCH'])]
@@ -74,7 +83,7 @@ class AdminAlbumController extends AbstractController
 
         if ($request->isMethod('GET')) {
             $albumForm = $this->createForm(AlbumType::class, $albumDTO, ['is_edit'=>true]);
-            return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
+            return $this->render('admin_area/edit-album.html.twig', ['albumForm'=>$albumForm, 'idalbum'=>$album->getId()]);
         }
 
         $albumForm = $this->createForm(AlbumType::class, $albumDTO, ['is_edit'=>true])
@@ -94,7 +103,7 @@ class AdminAlbumController extends AbstractController
             return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
         }
 
-        return $this->redirectToRoute('app_admin_home');
+        return $this->redirectToRoute('app_admin_albuns_edit', ['album' => $album->getId()]);
     }
 
     #[Route('/admin/albuns/{album}', name: 'app_admin_albuns_delete', methods: ['DELETE'])]
