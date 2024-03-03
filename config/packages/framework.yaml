@@ -5,7 +5,12 @@ framework:
     http_method_override: true
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    # session: true
+
+    # testes com balanceamento de carga
+    session: 
+        handler_id: 'session.handler.native_file'
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
 
     #esi: true
     #fragments: true
