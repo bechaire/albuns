@@ -1,7 +1,7 @@
 {
     "emptyTable": "Não foi encontrado nenhum registro",
-    "loadingRecords": "A carregar...",
-    "processing": "A processar...",
+    "loadingRecords": "<img src='/images/loading.gif' style='width:.9em'> Carregando...",
+    "processing": "<img src='/images/loading.gif' style='width:.9em'> Processando...",
     "lengthMenu": "Mostrar _MENU_ registros",
     "zeroRecords": "Não foram encontrados resultados",
     "search": "Procurar:",
@@ -12,8 +12,8 @@
         "last": "Último"
     },
     "aria": {
-        "sortAscending": ": Ordenar colunas de forma ascendente",
-        "sortDescending": ": Ordenar colunas de forma descendente"
+        "sortAscending": ": Ordenar colunas de forma crescente",
+        "sortDescending": ": Ordenar colunas de forma decrescente"
     },
     "autoFill": {
         "cancel": "cancelar",

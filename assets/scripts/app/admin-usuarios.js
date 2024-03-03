@@ -1,5 +1,6 @@
 import DataTable from 'datatables.net-bs5';
 import language from '../data/datatables-ptbr.json';
+import Swal from 'sweetalert2';
 
 export function hidratarListaDeUsuarios() {
     let config = {
@@ -16,7 +17,7 @@ export function hidratarListaDeUsuarios() {
             { data: null, width: "7%", className: 'dt-center', searchable: false, orderable: false, render: renderOpcoes },
         ],
         createdRow: processaLinha,
-        initComplete: adicionaBotaoNovoUsuario,
+        initComplete: personalizaGrid,
     }
     new DataTable('#datatable-usuarios', config);
 }
@@ -51,10 +52,43 @@ function renderAdmin(data, type, row) {
     return (data.roles.indexOf('ROLE_ADMIN') >= 0) ? 'Sim' : 'Não';
 }
 
-function adicionaBotaoNovoUsuario(settings) {
+function personalizaGrid(settings) {
+    adicionaBotaoNovoUsuario();
+    adicionaBotaoLimparCache();
+}
+
+function adicionaBotaoNovoUsuario() {
     let addButton = `<a href="/admin/usuarios/new" class="btn btn-primary opacity-75 btn-sm align-top ms-3">
         <i class="bi bi-shield-plus"></i> Adicionar Usuário
     </a>`;
 
     document.querySelector("#datatable-usuarios_length").insertAdjacentHTML('beforeend', addButton);
+}
+
+function adicionaBotaoLimparCache() {
+    let addButton = `<a href="/admin/albuns/purge" id="btn-purge-cache" class="btn btn-primary opacity-75 btn-sm align-top ms-3">
+        <i class="bi bi-eraser"></i> Limpar cache
+    </a>`;
+
+    document.querySelector("#datatable-usuarios_length").insertAdjacentHTML('beforeend', addButton);
+
+    document.querySelector("#btn-purge-cache").addEventListener('click', event=>{
+        event.preventDefault();
+        Swal.fire({
+            title: 'Leia com atenção',
+            icon: 'warning',
+            html: `Apesar de segura, use esta funcionalidade com cautela, limpar o cache de TODAS as fotos geradas <b>vai economizar espaço em disco</b> mas forcará que os próximos acessos consumam <i>momentaneamente</i> recursos de processamento para regearar as imagens públicas`,
+            cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, quero LIMPAR',
+            focusCancel: true,
+            showLoaderOnConfirm: true,
+            preConfirm: async ()=> {
+                return await fetch(event.target.href, {
+                    method: 'POST'
+                });
+            },
+            allowOutsideClick: ()=>Swal.isLoading()
+        });
+    })
 }

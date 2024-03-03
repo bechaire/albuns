@@ -51,7 +51,7 @@ class AlbumRepository extends ServiceEntityRepository
         }
     }
 
-    public function storeFromDTO(AlbumInputDTO $dto, ?Album $album=null, bool $flush=false): void
+    public function storeFromDTO(AlbumInputDTO $dto, ?Album $album=null, bool $flush=false): int
     {
         $errors = $this->validator->validate($dto);
         if (count($errors)) {
@@ -77,5 +77,7 @@ class AlbumRepository extends ServiceEntityRepository
         $album->setAddtag($dto->addtag);
 
         $this->add($album, $flush);
+
+        return $album->getId();
     }
 }

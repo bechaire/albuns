@@ -82,3 +82,50 @@ export function humanFileSize(bytes, si=false, dp=1) {
 
   return bytes.toFixed(dp) + ' ' + units[u];
 }
+
+/**
+ * 
+ * @param {string} rootSelector 
+ * @param {string} childSelector 
+ * @param {Function} afterOrder
+ */
+export function adicionaOpcaoMover(rootSelector, childSelector, afterOrder=()=>{}) {
+  var blocoRaiz = document.querySelector(rootSelector);
+  var filhos = blocoRaiz.querySelectorAll(childSelector);
+  var dragged;
+
+  for (var i = 0; i < filhos.length; i++) {
+    filhos[i].setAttribute("draggable", "true");
+    filhos[i].addEventListener("dragstart", function (e) {
+      dragged = e.target.closest(childSelector);
+      e.dataTransfer.effectAllowed = "move";
+      // habilitar o arrasto no Firefox
+      e.dataTransfer.setData("text/plain", null);
+    });
+    filhos[i].addEventListener("dragover", function (e) {
+      e.preventDefault();
+    });
+    filhos[i].addEventListener("drop", function (e) {
+      // cancelar o comportamento padrão que abre a URL do elemento
+      e.preventDefault();
+      // verificar se o elemento solto é diferente do elemento alvo
+      if (dragged !== e.target.closest(childSelector)) {
+        // obter o índice do elemento arrastado
+        var index1 = Array.prototype.indexOf.call(filhos, dragged);
+        // obter o índice do elemento alvo
+        var index2 = Array.prototype.indexOf.call(filhos, e.target.closest(childSelector));
+        // trocar os elementos de posição no DOM
+        if (index1 < index2) {
+          blocoRaiz.insertBefore(dragged, e.target.closest(childSelector).nextSibling);
+        } else {
+          blocoRaiz.insertBefore(dragged, e.target.closest(childSelector));
+        }
+
+        // atualiza para que que FILHOS tenha ciência da nova posição
+        filhos = blocoRaiz.querySelectorAll(childSelector);
+
+        afterOrder();
+      }
+    });
+  }
+}

@@ -4,8 +4,14 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    app.ldap.host: '%env(LDAP_HOST)%'
-    app.ldap.usrprefix: '%env(LDAP_USR_PREFIX)%'
+    app.ldap.host: '%env(APP_LDAP_HOST)%'
+    app.ldap.usrprefix: '%env(APP_LDAP_USR_PREFIX)%'
+    app.albuns.ativalog: '%env(APP_ATIVA_LOG_VISITANTE)%'
+    app.albuns.path: '%kernel.project_dir%%env(APP_PHOTO_STORAGE_PATH)%'
+    app.albuns.jpeg.compress: '%env(int:APP_PHOTO_JPEG_COMPRESS)%'
+    app.albuns.max.side: '%env(int:APP_PHOTO_MAX_SIDE)%'
+    app.albuns.cache.path: '%kernel.project_dir%%env(APP_PHOTO_CACHE_PATH)%'
+    app.albuns.cache.sizes: '%env(json:APP_PHOTO_CACHE_SIZES)%'
 services:
     # default configuration for services in *this* file
     _defaults:

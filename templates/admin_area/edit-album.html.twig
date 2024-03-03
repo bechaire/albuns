@@ -47,7 +47,7 @@
   </div>
   <div class="row">
     <div class="offset-md-2 col-md-8">
-      <form action="#" onsubmit="return false">
+      <form action="{{ path('app_admin_albuns_fotos_add', {idalbum}) }}" onsubmit="return false">
         <div class="input-group">
           <input type="file" class="form-control" aria-label="Upload" name="imagens[]" multiple
             accept="image/*,image/heic">
@@ -59,9 +59,8 @@
   </div>
 </div>
 
-<div class="container-fotos">
+<div class="container-fotos"></div>
 
-</div>
 {% endif %}
 
 {% endblock %}

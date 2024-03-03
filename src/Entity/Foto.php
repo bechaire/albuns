@@ -21,6 +21,9 @@ class Foto
     #[ORM\Column(length: 150, nullable: true)]
     private ?string $arquivo = null;
 
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $arquivoorigem = null;
+
     #[ORM\Column(length: 15, nullable: true)]
     private ?string $youtubeid = null;
 
@@ -41,6 +44,9 @@ class Foto
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updated = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $opcoes = null;
 
     public function __construct(
         #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'fotos')]
@@ -71,9 +77,22 @@ class Foto
         return $this->arquivo;
     }
 
-    public function setArquivo(?string $arquivo): static
+    public function setArquivo(string $arquivo): static
     {
         $this->arquivo = $arquivo;
+
+        return $this;
+    }
+
+
+    public function getArquivoOrigem(): ?string
+    {
+        return $this->arquivoorigem;
+    }
+
+    public function setArquivoOrigem(string $arquivoorigem): static
+    {
+        $this->arquivoorigem = $arquivoorigem;
 
         return $this;
     }
@@ -83,7 +102,7 @@ class Foto
         return $this->youtubeid;
     }
 
-    public function setYoutubeid(?string $youtubeid): static
+    public function setYoutubeid(string $youtubeid): static
     {
         $this->youtubeid = $youtubeid;
 
@@ -167,6 +186,25 @@ class Foto
     public function updateModifiedDatetime(): void
     {
         $this->setUpdated(new \DateTimeImmutable());
+    }
+
+    public function getOpcoes(): string
+    {
+        if (null == $this->opcoes) {
+            $this->opcoes = json_encode([
+                'fliph' => 0,
+                'flipv' => 0,
+                'rotate' => 0,
+            ]);
+        }
+        return $this->opcoes;
+    }
+
+    public function setOpcoes(?string $opcoes): static
+    {
+        $this->opcoes = $opcoes;
+
+        return $this;
     }
 
 }
