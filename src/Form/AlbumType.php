@@ -57,8 +57,7 @@ class AlbumType extends AbstractType
                 'expanded' => true,
                 'attr' => [
                     'class' => 'd-flex app-form-check-inline'
-                ],
-                'data' => 'S',
+                ]
             ])
             ->add('criador', TextType::class, options: [
                 'label' => 'Criado por',

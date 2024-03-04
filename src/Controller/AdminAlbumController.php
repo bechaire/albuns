@@ -38,6 +38,7 @@ class AdminAlbumController extends AbstractController
         $albumDTO = new AlbumInputDTO();
 
         if ($request->isMethod('GET')) {
+            $albumDTO->addtag = 'S';
             $albumForm = $this->createForm(AlbumType::class, $albumDTO);
             return $this->render('admin_area/edit-album.html.twig', compact('albumForm'));
         }
