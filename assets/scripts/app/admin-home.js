@@ -76,6 +76,10 @@ function renderOpcoes(data, type, row) {
             <li><a class="dropdown-item btn-desativar" href="#"><i class="bi bi-eye-slash"></i> Ocultar/Desativar</a></li>
             <li><hr class="dropdown-divider"></li>
         ` : ''}
+        ${row.status == 'I' ? `
+            <li><a class="dropdown-item btn-ativar" href="#"><i class="bi bi-eye"></i> Ativar / Liberar</a></li>
+            <li><hr class="dropdown-divider"></li>
+        ` : ''}
         <li><a class="dropdown-item bg-warning-subtle btn-excluir" href="#"><i class="bi bi-trash"></i> Excluir álbum</a></li>
       </ul>
     </div>`;
@@ -115,17 +119,36 @@ function processaLinha(row, data, index) {
         excluirAlbum(data);
     });
 
+    row.querySelector('.btn-ativar')?.addEventListener('click', (event) => {
+        event.preventDefault();
+        reativarAlbum(data);
+    });
+
     let classStatus = ({ I: "inativo", C: "criado", X: "excluido" })[data.status];
     if (classStatus) {
         row.classList.add('album-' + classStatus);
     };
 }
 
-function desativarAlbum(registro) {
-    console.log('desativar: ' + registro.titulo)
+function reativarAlbum(registro) {
+    ajustaRegistroAlbum(
+        registro.id, 
+        'A', 
+        'O álbum foi reativado', 
+        'Falha ao reativar o álbum, tente novamente'
+    );
 }
 
-function excluirAlbum(registro) {
+function desativarAlbum(registro) {
+    ajustaRegistroAlbum(
+        registro.id, 
+        'I', 
+        'O álbum foi desativado', 
+        'Falha ao desativar o álbum, tente novamente'
+    );
+}
+
+function excluirAlbum(registro, objClick) {
     Swal.fire({
         title: `Excluir o álbum "${registro.id}"?`,
         html: `<p class="text-justify">Ao excluir o álbum <strong>"${registro.titulo}"</strong>, 
@@ -134,12 +157,49 @@ function excluirAlbum(registro) {
         icon: "error",
         showCancelButton: true,
         cancelButtonText: "cancelar",
-        // confirmButtonColor: "#3085d6",
-        // cancelButtonColor: "#d33",
         confirmButtonText: "Sim, quero remover"
     }).then(result => {
         if (result.isConfirmed) {
-            
+            ajustaRegistroAlbum(
+                registro.id, 
+                'X', 
+                'O álbum foi marcado para remover', 
+                'Falha ao remover o álbum, tente novamente'
+            );
         }
     });
+
+}
+
+function ajustaRegistroAlbum(idAlbum, status, msgSuccess, msgFail) {
+    const formData = new FormData();
+    formData.append('_method', 'PATCH');
+    formData.append('status', status);
+    fetch(`/admin/albuns/${idAlbum}/ajust`, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(json => {
+        if (json.status == 'success') {
+            Swal.fire({
+                position: "top-end",
+                icon: "info",
+                title: msgSuccess,
+                showConfirmButton: false,
+                timer: 1500
+            })
+            .then(response=>{
+                window.location.href = '/admin'
+            });
+        } else {
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: msgFail,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    })
 }

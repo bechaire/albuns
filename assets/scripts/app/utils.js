@@ -30,6 +30,19 @@ export function removeOptionByValue(oSelect, valueToRemove) {
   }
 }
 
+export function procurarIndiceFilhoRelacaoPai(node, seletorPai) {
+  let pai = node.closest(seletorPai);
+  let filhoBuscado = node.closest(seletorPai + ' > *');
+
+  let filhos = pai.children;
+  for(let i=0; i<filhos.length; i++) {
+    if (filhos[i] == filhoBuscado) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /**
  * 
  * @param {object} input 

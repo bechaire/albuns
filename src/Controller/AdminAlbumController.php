@@ -10,6 +10,7 @@ use App\Form\AlbumType;
 use App\Repository\AlbumRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,22 @@ class AdminAlbumController extends AbstractController
     public function __construct(
         private AlbumRepository $albumRepository,
         private Filesystem $filesystem,
+        private EntityManagerInterface $entityManager,
     ) {
+    }
+
+    #[Route('/admin/albuns/{album}/ajust', name: 'app_admin_albuns_ajust', methods: ['PATCH'])]
+    public function adminAlbumAjust(Album $album, Request $request): Response
+    {
+        $status = $request->request->get('status');
+        $statusPossiveis = ['A', 'I', 'X'];
+        if (!$status || !in_array($status, $statusPossiveis)) {
+            return $this->json(['status'=>'error']);
+        }
+
+        $album->setStatus($status);
+        $this->entityManager->flush();
+        return $this->json(['status'=>'success']);
     }
 
     #[Route('/admin/albuns/purge', name: 'app_admin_albuns_purge', methods: ['POST'])]
@@ -104,12 +120,6 @@ class AdminAlbumController extends AbstractController
             return $this->render('admin_area/edit-album.html.twig', ['albumForm'=>$albumForm, 'idalbum'=>$album->getId()]);
         }
 
-        return $this->redirectToRoute('app_admin_albuns_edit', ['album' => $album->getId()]);
-    }
-
-    #[Route('/admin/albuns/{album}', name: 'app_admin_albuns_delete', methods: ['DELETE'])]
-    public function adminAlbumDelete(Album $album): Response
-    {
-        return new Response('<body>Acessou /admin/album via GET</body>');
+        return $this->redirectToRoute('app_admin_home');
     }
 }
