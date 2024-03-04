@@ -84,9 +84,30 @@ function adicionaBotaoLimparCache() {
             focusCancel: true,
             showLoaderOnConfirm: true,
             preConfirm: async ()=> {
-                return await fetch(event.target.href, {
+                await fetch(event.target.href, {
                     method: 'POST'
-                });
+                })
+                .then(result=>result.json())
+                .then(json=>{
+                    if (json.status == 'success') {
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "success",
+                            title: 'As imagens do cache foram excluídas',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                })
+                .catch(error=>{
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "error",
+                        title: `Falha ao limpar o cache, contate a equipe de TI (${error.message})`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                })
             },
             allowOutsideClick: ()=>Swal.isLoading()
         });
