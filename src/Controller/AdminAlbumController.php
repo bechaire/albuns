@@ -8,6 +8,7 @@ use App\DTO\AlbumInputDTO;
 use App\Entity\Album;
 use App\Form\AlbumType;
 use App\Repository\AlbumRepository;
+use App\Service\AlbumService;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +25,7 @@ class AdminAlbumController extends AbstractController
         private AlbumRepository $albumRepository,
         private Filesystem $filesystem,
         private EntityManagerInterface $entityManager,
+        private AlbumService $albumService,
     ) {
     }
 
@@ -44,7 +46,7 @@ class AdminAlbumController extends AbstractController
     #[Route('/admin/albuns/purge', name: 'app_admin_albuns_purge', methods: ['POST'])]
     public function adminAlbumPurge(): Response
     {
-        $this->filesystem->remove($this->getParameter('app.albuns.cache.path'));
+        $this->albumService->limpaCachePublico();
         return $this->json(['status'=>'success']);
     }
 
