@@ -67,9 +67,17 @@ class AdminFotoController extends AbstractController
             ]);
         }
 
-        $this->fotoRepository->remove($foto, true);
-        $arquivoOriginal = $this->getParameter('app.albuns.path') . '/' . $idalbum . '/' . $foto->getArquivo();
-        $this->filesystem->remove($arquivoOriginal);
+        try {
+            $arquivoOriginal = $this->getParameter('app.albuns.path') . '/' . $idalbum . '/' . $foto->getArquivo();
+            $this->filesystem->remove($arquivoOriginal);
+            $this->fotoRepository->remove($foto, true);
+        } catch(IOException) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Falha de permissão ao remover o arquivo do servidor, contate o CI',
+            ]);
+        }
+
         $tamanhosDisponiveis = $this->getParameter('app.albuns.cache.sizes');
         foreach ($tamanhosDisponiveis as $tamanho) {
             $arquivoCacheado = $this->getParameter('app.albuns.cache.path') . "/{$idalbum}/{$tamanho}/{$foto->getIdentificador()}.jpg";

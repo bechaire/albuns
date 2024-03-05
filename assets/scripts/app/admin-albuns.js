@@ -432,7 +432,7 @@ function atualizaRegistroArquivoFoto(objeto, action) {
         }
 
         if (json.status && json.message) {
-            Swal.fetch({
+            Swal.fire({
                 title: 'Falha ao realizar ação',
                 icon: json.status,
                 html: json.message,
