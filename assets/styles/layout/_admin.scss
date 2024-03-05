@@ -108,6 +108,14 @@
     background-color: #0000FF;
 }
 
+form.editando label[for="album_titulo"] {
+    font-weight: bold;
+}
+
+form.editando #album_titulo {
+    background-color: #ffeac7;
+    font-weight: bold;
+}
 
 @media (max-width: 991px) {
     .navbar-header-admin .navbar-brand {

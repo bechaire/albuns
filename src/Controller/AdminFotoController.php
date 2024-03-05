@@ -124,7 +124,10 @@ class AdminFotoController extends AbstractController
             $foto->setIdentificador(uniqid() . (string) mt_rand(0, 99));
         }
 
-        $foto->setDestaque($opcoes['destaque']);
+        if ($opcoes['destaque'] == 'S') {
+            $this->fotoRepository->defineFotoDestaque($foto);
+        }
+
         $foto->setVisivel($opcoes['visivel']);
         $foto->setOrdem($opcoes['ordem']);
         $foto->setOpcoes($opcoesEnviadas);

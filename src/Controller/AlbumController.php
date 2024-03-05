@@ -43,7 +43,7 @@ class AlbumController extends AbstractController
 
     private function cacheiaArquivoSolicitado(int $idalbum, string $tamanho, string $arquivo, Request $request): string
     {
-        $identificador = str_ireplace(['.jpg', '.jpeg', '.jfif'], '', $arquivo);
+        $identificador = str_replace('.jpg', '', $arquivo);
 
         $album = $this->albumRepository->find($idalbum);
 
@@ -98,8 +98,8 @@ class AlbumController extends AbstractController
             $this->image->thumb($tamanhoPX);
 
             if ($tamanho == 'normal' && $album->getAddtag() == 'S') {
-                $tagDominio = strpos($request->getSchemeAndHttpHost(), 'cfjl.com.br') ? 'cfjl.com.br' : 'fahor.com.br';
-                $this->image->addTag($tagDominio);
+                $siglaLower = strtolower($album->getInstituicao());
+                $this->image->addTag($siglaLower . '.com.br');
             }
 
             $this->image->saveAsJpeg(compress: $compressaoJpeg, newFilePath: $pathArquivoDestino);

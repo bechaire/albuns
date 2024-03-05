@@ -60,6 +60,20 @@ class FotoRepository extends ServiceEntityRepository
         return 'x';
     }
 
+    public function defineFotoDestaque(Foto $entity, bool $flush = false): void
+    {
+        $dql = <<<DQL
+            UPDATE App\Entity\Foto f SET f.destaque = 'N' WHERE f.album = ?1
+        DQL;
+
+        $query = $this->getEntityManager()->createQuery($dql);
+        $query->setParameter(1, $entity->getAlbum());
+        $query->execute();
+
+        $entity->setDestaque('S');
+        $this->add($entity, $flush);
+    }
+
     public function getInfoFoto(Album $album, string $identificador): ?Foto
     {
         $dql = <<<DQL

@@ -95,7 +95,7 @@ class Album
     }
 
     /**
-     * @return Collection<int, Visita>
+     * @return Collection<int, Foto>
      */
     public function getFotos(): Collection
     {
