@@ -55,11 +55,11 @@ class ClearOldCacheCommand extends Command
                 $this->filesystem->remove($albumPath . '/' . $subItem);
             }
             
-            $output->writeln([
-                'Criando arquivo .json de metadados para o álbum ' . $album->getId(),
-                ''
-            ]);
-            $this->albumService->createInfoOnUploadedAlbumDirectory($album);
+            $criouJson = $this->albumService->createInfoOnUploadedAlbumDirectory($album);
+            if ($criouJson) {
+                $output->writeln('-- Criado arquivo .json de metadados para o álbum ' . $album->getId());
+            }
+            
         }
 
         return Command::SUCCESS;

@@ -30,16 +30,22 @@ class AlbumService
         }
     }
 
-    public function createInfoOnUploadedAlbumDirectory(Album $album): void
+    public function createInfoOnUploadedAlbumDirectory(Album $album): bool
     {
         $pathUploads = $this->parameterBag->get('app.albuns.path');
         $albumPath = $pathUploads . '/' . $album->getId();
 
         if (!$this->filesystem->exists($albumPath)) {
-            return;
+            return false;
         }
 
         $pathArquivo = $albumPath . '/albumInfo.json';
+
+        $jsonAtualizado = $this->filesystem->exists($pathArquivo) 
+                       && filemtime($pathArquivo) > $album->getUpdated()->getTimestamp();
+        if ($jsonAtualizado) {
+            return false;
+        }
 
         $albumInfo = [
             'idalbum' => $album->getId(),
@@ -72,6 +78,8 @@ class AlbumService
         }
 
         $this->filesystem->remove($pathArquivo);
-        $this->filesystem->appendToFile($pathArquivo, json_encode($albumInfo));;
+        $this->filesystem->appendToFile($pathArquivo, json_encode($albumInfo));
+
+        return true;
     }
 }
