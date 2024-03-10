@@ -57,7 +57,7 @@ class Album
         private \DateTimeInterface $data,
 
         #[ORM\Column(length: 255, nullable: true)]
-        private string $local,
+        private ?string $local,
 
         #[ORM\Column(length: 350)]
         private string $titulo
@@ -150,12 +150,12 @@ class Album
         return $this;
     }
 
-    public function getLocal(): string
+    public function getLocal(): ?string
     {
         return $this->local;
     }
 
-    public function setLocal(string $local): static
+    public function setLocal(?string $local): static
     {
         $this->local = $local;
 

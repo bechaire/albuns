@@ -23,9 +23,8 @@ class AlbumInputDTO
         #[Assert\LessThanOrEqual('today', message: 'Não informe datas futuras')]
         public ?\DateTime $data = null,
 
-        #[Assert\NotBlank(message: 'O campo LOCAL não pode ficar vazio')]
         #[Assert\Length(min: 5, max: 255,  minMessage: 'Campo LOCAL muito curto', maxMessage: 'Campo LOCAL muito longo')]
-        public string $local = '',
+        public ?string $local = '',
 
         #[Assert\NotBlank(message: 'O campo STATUS não pode ficar vazio')]
         #[Assert\Choice(callback: [AlbumStatusEnum::class, 'getNames'], message: 'Valor inválido para o campo STATUS')]

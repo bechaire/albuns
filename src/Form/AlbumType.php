@@ -42,7 +42,8 @@ class AlbumType extends AbstractType
                 // 'input'  => 'datetime',
             ])
             ->add('local', options: [
-                'label' => 'Local das Fotos'
+                'label' => 'Local das Fotos',
+                'required' => false,
             ])
             ->add('status', ChoiceType::class, [
                 'label' => 'Status do álbum',
