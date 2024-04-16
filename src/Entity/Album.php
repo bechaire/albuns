@@ -31,6 +31,15 @@ class Album
     #[ORM\OneToMany(targetEntity: Foto::class, mappedBy: 'album')]
     private Collection $fotos;
 
+    #[ORM\Column(length: 10)]
+    private ?string $instituicao = null;
+
+    #[ORM\Column(length: 350)]
+    private ?string $titulo = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $local = null;
+
     //\App\Enum\AlbumStatusEnum
     #[ORM\Column(length: 1, options: ['comment'=>'A = Ativo | I  = Inativo | C = Criado | X = Excluído'])]
     private ?string $status = null;
@@ -54,21 +63,18 @@ class Album
     private ?\DateTimeInterface $updated = null;
 
     public function __construct(
-        #[ORM\Column(length: 10)]
-        private string $instituicao,
-    
+        string $instituicao,
         \DateTimeInterface $data,
-
-        #[ORM\Column(length: 350)]
-        private string $titulo,
-
-        #[ORM\Column(length: 255, nullable: true)]
-        private ?string $local = null,
+        string $titulo,
+        ?string $local = null,
     ) {
         $this->visitas = new ArrayCollection();
         $this->fotos = new ArrayCollection();
 
+        $this->setInstituicao($instituicao);
         $this->setData($data);
+        $this->setTitulo($titulo);
+        $this->setLocal($local);
         $this->setAcessos(0);
         $this->setAddtag('S');
         $this->setStatus('C');
@@ -191,6 +197,7 @@ class Album
 
     public function setStatus(string $status): static
     {
+        $status = strtoupper($status);
         $validStatusList = AlbumStatusEnum::getNames();
 
         if (!in_array($status, $validStatusList)) {
