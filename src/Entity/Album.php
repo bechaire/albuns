@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\AlbumStatusEnum;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -34,6 +35,9 @@ class Album
     #[ORM\Column(length: 1, options: ['comment'=>'A = Ativo | I  = Inativo | C = Criado | X = Excluído'])]
     private ?string $status = null;
 
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private \DateTimeInterface $data;
+
     #[ORM\Column(length: 4)]
     private ?string $ano = null;
 
@@ -53,19 +57,18 @@ class Album
         #[ORM\Column(length: 10)]
         private string $instituicao,
     
-        #[ORM\Column(type: Types::DATE_MUTABLE)]
-        private \DateTimeInterface $data,
-
-        #[ORM\Column(length: 255, nullable: true)]
-        private ?string $local,
+        \DateTimeInterface $data,
 
         #[ORM\Column(length: 350)]
-        private string $titulo
+        private string $titulo,
+
+        #[ORM\Column(length: 255, nullable: true)]
+        private ?string $local = null,
     ) {
         $this->visitas = new ArrayCollection();
         $this->fotos = new ArrayCollection();
 
-        $this->ano = $data->format('Y');
+        $this->setData($data);
         $this->setAcessos(0);
         $this->setAddtag('S');
         $this->setStatus('C');
@@ -116,7 +119,7 @@ class Album
 
     public function setInstituicao(string $instituicao): static
     {
-        $this->instituicao = $instituicao;
+        $this->instituicao = trim($instituicao);
 
         return $this;
     }
@@ -145,7 +148,7 @@ class Album
 
     public function setTitulo(string $titulo): static
     {
-        $this->titulo = $titulo;
+        $this->titulo = trim($titulo);
 
         return $this;
     }
@@ -157,6 +160,10 @@ class Album
 
     public function setLocal(?string $local): static
     {
+        if (!is_null($local)) {
+            $local = trim($local);
+        }
+
         $this->local = $local;
 
         return $this;
@@ -169,6 +176,9 @@ class Album
 
     public function setAddtag(string $addtag): static
     {
+        if (!in_array($addtag, ['S', 'N'])) {
+            throw new \DomainException('O campo ADDTAG precisa ter um valor válido ("S" ou "N")');
+        }
         $this->addtag = $addtag;
 
         return $this;
@@ -181,6 +191,12 @@ class Album
 
     public function setStatus(string $status): static
     {
+        $validStatusList = AlbumStatusEnum::getNames();
+
+        if (!in_array($status, $validStatusList)) {
+            throw new \DomainException('O campo STATUS precisa ter um valor válido: ' . implode(', ', $validStatusList));
+        }
+
         $this->status = $status;
 
         return $this;
@@ -193,6 +209,9 @@ class Album
 
     public function setAcessos(int $acessos): static
     {
+        if ($acessos < 0) {
+            $acessos = 0;
+        }
         $this->acessos = $acessos;
 
         return $this;

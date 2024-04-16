@@ -33,8 +33,8 @@ class AdminAlbumController extends AbstractController
     public function adminAlbumAjust(Album $album, Request $request): Response
     {
         $status = $request->request->get('status');
-        $statusPossiveis = ['A', 'I', 'X'];
-        if (!$status || !in_array($status, $statusPossiveis)) {
+        $statusAceitaveis = ['A', 'I', 'X'];
+        if (!$status || !in_array($status, $statusAceitaveis)) {
             return $this->json(['status'=>'error']);
         }
 

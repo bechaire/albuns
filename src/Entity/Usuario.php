@@ -94,6 +94,10 @@ class Usuario implements UserInterface
 
     public function setUsuario(string $usuario): static
     {
+        if (strpos($usuario, '@')) {
+            throw new \DomainException('O usuário não pode ser um endereço de e-mail');
+        }
+
         $this->usuario = mb_strtolower($usuario);
 
         return $this;
@@ -106,7 +110,7 @@ class Usuario implements UserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = mb_strtolower($email);
+        $this->email = trim(mb_strtolower($email));
 
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             throw new \DomainException('E-mail inválido para o usuário');
@@ -122,7 +126,7 @@ class Usuario implements UserInterface
 
     public function setNome(string $nome): static
     {
-        $this->nome = $nome;
+        $this->nome = trim($nome);
 
         return $this;
     }
@@ -137,6 +141,12 @@ class Usuario implements UserInterface
         return array_unique($roles);
     }
 
+    /**
+     * Deve ser um array com um ou mais papéis do usuário, sabendo que ROLE_USER sempre será adicionado ao usuário
+     *
+     * @param array $roles ['ROLE_ADMIN'] ou ['ROLE_ADMIN', 'ROLE_USER', 'ROLE_XYZ']
+     * @return static
+     */
     public function setRoles(array $roles): static
     {
         $roles[] = 'ROLE_USER';

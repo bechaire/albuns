@@ -158,7 +158,13 @@ class AdminFotoController extends AbstractController
         $foto = $request->files->get('foto');
         if (!$foto) {
             return $this->json([
-                'message' => 'Falha ao validar o upload, o conteúdo do arquivo não foi recebido.', $foto, $_POST, $_FILES
+                'message' => 'Falha ao validar o upload, o conteúdo do arquivo não foi recebido.'
+            ], 400);
+        }
+
+        if (strpos($foto->getMimeType(), 'image') !== 0) {
+            return $this->json([
+                'message' => sprintf('O arquivo enviado não é uma imagem, mas sim um <b>%s</b>', $foto->getMimeType())
             ], 400);
         }
 

@@ -116,6 +116,10 @@ class Foto
 
     public function setVisivel(string $visivel): static
     {
+        if (!in_array($visivel, ['S', 'N'])) {
+            throw new \DomainException('O campo VISIVEL precisa ter um valor válido ("S" ou "N")');
+        }
+
         $this->visivel = $visivel;
 
         return $this;
@@ -128,6 +132,10 @@ class Foto
 
     public function setDestaque(string $destaque): static
     {
+        if (!in_array($destaque, ['S', 'N'])) {
+            throw new \DomainException('O campo DESTAQUE precisa ter um valor válido ("S" ou "N")');
+        }
+
         $this->destaque = $destaque;
 
         return $this;
@@ -140,6 +148,10 @@ class Foto
 
     public function setOrdem(int $ordem): static
     {
+        if ($ordem < 0) {
+            $ordem = 0;
+        }
+        
         $this->ordem = $ordem;
 
         return $this;

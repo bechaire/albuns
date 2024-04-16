@@ -39,6 +39,7 @@ class AlbumRepository extends ServiceEntityRepository
             GROUP BY a.id, a.instituicao, a.data, a.titulo, a.acessos, a.status
             ORDER BY a.data DESC, a.titulo, a.instituicao
         DQL;
+        // return $this->getEntityManager()->createQuery($dql)->enableResultCache(3600)->getResult();
         return $this->getEntityManager()->createQuery($dql)->getResult();
     }
 
@@ -62,8 +63,8 @@ class AlbumRepository extends ServiceEntityRepository
             $album = new Album(
                 $dto->instituicao,
                 $dto->data,
-                $dto->local,
                 $dto->titulo,
+                $dto->local,
             );
             $album->setUsuario($this->security->getUser());
         } else {
