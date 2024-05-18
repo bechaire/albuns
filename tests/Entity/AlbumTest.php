@@ -4,7 +4,6 @@ namespace App\Tests\Entity;
 
 use App\Entity\Album;
 use App\Enum\AlbumStatusEnum;
-use DateTime;
 use PHPUnit\Framework\TestCase;
 
 class AlbumTest extends TestCase
@@ -13,7 +12,7 @@ class AlbumTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->album = new Album('INSTITUICAO ', new DateTime, '   Título do álbum ');
+        $this->album = new Album('INSTITUICAO ', new \DateTime, '   Título do álbum ');
     }
 
     public function testCreateNewAlbum(): void
