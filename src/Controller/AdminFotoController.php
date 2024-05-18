@@ -122,11 +122,7 @@ class AdminFotoController extends AbstractController
         $opcoes['flipv'] = (int) $opcoes['flipv'];
         $opcoes['rotate'] = (int) $opcoes['rotate'];
 
-        $opcoesEnviadas = json_encode([
-            'fliph' => $opcoes['fliph'],
-            'flipv' => $opcoes['flipv'],
-            'rotate' => $opcoes['rotate'],
-        ]);
+        $opcoesEnviadas = json_encode(array_intersect_key($opcoes, $foto->defaultOptions()));
 
         if ($foto->getOpcoes() != $opcoesEnviadas) {
             $foto->setIdentificador(uniqid() . (string) mt_rand(0, 99));

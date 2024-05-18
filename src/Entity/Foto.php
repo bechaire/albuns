@@ -9,13 +9,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FotoRepository::class)]
-#[ORM\Table(name:'fotos')]
+#[ORM\Table(name: 'fotos')]
 #[ORM\HasLifecycleCallbacks]
 class Foto
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name:'idfoto')]
+    #[ORM\Column(name: 'idfoto')]
     private ?int $id = null;
 
     #[ORM\Column(length: 150, nullable: true)]
@@ -50,7 +50,7 @@ class Foto
 
     public function __construct(
         #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'fotos')]
-        #[ORM\JoinColumn(name: 'idalbum', referencedColumnName:'idalbum')]
+        #[ORM\JoinColumn(name: 'idalbum', referencedColumnName: 'idalbum')]
         private ?Album $album
     ) {
         $this->setDestaque('N');
@@ -151,7 +151,7 @@ class Foto
         if ($ordem < 0) {
             $ordem = 0;
         }
-        
+
         $this->ordem = $ordem;
 
         return $this;
@@ -202,21 +202,55 @@ class Foto
 
     public function getOpcoes(): string
     {
-        if (null == $this->opcoes) {
-            $this->opcoes = json_encode([
-                'fliph' => 0,
-                'flipv' => 0,
-                'rotate' => 0,
-            ]);
+        if (null === $this->opcoes) {
+            $this->opcoes = json_encode($this->defaultOptions());
         }
         return $this->opcoes;
     }
 
-    public function setOpcoes(?string $opcoes): static
+    /**
+     *
+     * @param string $opcoes É um JSON das opções da foto, ex: {flipv, fliph, rotate}
+     * @return static
+     */
+    public function setOpcoes(string $opcoes): static
     {
+        $opcoesArray = json_decode($opcoes, true);
+
+        if ($this->isOptionsValid($opcoesArray)) {
+            ksort($opcoesArray);
+            $opcoes = json_encode($opcoesArray);
+        } else {
+            $opcoes = null;
+        }
+
         $this->opcoes = $opcoes;
 
         return $this;
     }
 
+    private function isOptionsValid(?array $opcoes): bool
+    {
+        if (null === $opcoes) {
+            return false;
+        }
+
+        ksort($opcoes);
+
+        // possui os mesmos valores, na mesma ordem
+        return array_keys($opcoes) == array_keys( $this->defaultOptions() );
+    }
+
+    public function defaultOptions(): array
+    {
+        $optionsPossible = [
+            'fliph' => 0,
+            'flipv' => 0,
+            'rotate' => 0,
+        ];
+
+        ksort($optionsPossible);
+
+        return $optionsPossible;
+    }
 }
