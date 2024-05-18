@@ -156,13 +156,17 @@ class Usuario implements UserInterface
         return $this;
     }
 
-    public function getAtivo(): ?string
+    public function getAtivo(): string
     {
         return $this->ativo;
     }
 
     public function setAtivo(string $ativo): static
     {
+        if (!in_array($ativo, ['S', 'N'])) {
+            throw new \DomainException('O campo ATIVO precisa ter um valor válido ("S" ou "N")');
+        }
+
         $this->ativo = $ativo;
 
         return $this;
