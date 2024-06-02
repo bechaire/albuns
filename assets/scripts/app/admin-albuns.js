@@ -205,12 +205,16 @@ function realizaPost(uploadInfo) {
 
 // ao abrir a página e ao término dos uploads, atualiza a grade de imagens do álbum
 function loadImages(uploadInfo) {
-    fetch(uploadInfo.form.action)
-        .then(result => result.json())
-        .then(json => {
-            uploadInfo.qtdFotosExistentes = json.fotos.length;
-            criaGradeFotos(json, uploadInfo)
-        });
+    fetch(uploadInfo.form.action, {
+        headers: {
+            Accept: "application/json"
+        }
+    })
+    .then(result => result.json())
+    .then(json => {
+        uploadInfo.qtdFotosExistentes = json.fotos.length;
+        criaGradeFotos(json, uploadInfo)
+    });
 }
 
 // cria a grade das fotos do álbum, adicionando os botões de edição para cada imagem
@@ -220,7 +224,7 @@ function criaGradeFotos(data, uploadInfo) {
     data.fotos.forEach(foto => {
         let opcoes = foto.opcoes ? JSON.parse(foto.opcoes) : { flipv: 0, fliph: 0, rotate: 0 };
         html += `<div class="p-1 mb-2 box-foto text-center position-relative" data-idalbum="${data.id}" data-idfoto="${foto.id}" data-visivel="${foto.visivel}" data-destaque="${foto.destaque}" data-ordem="${foto.ordem}" data-flipv="${opcoes.flipv}" data-fliph="${opcoes.fliph}" data-rotate="${opcoes.rotate}">
-            <img src="${data.path_miniaturas}/${foto.identificador}.jpg" data-src="${data.path_normais}/${foto.identificador}.jpg" class="img-thumbnail">
+            <img src="${data.path_miniatura}/${foto.identificador}.jpg" data-src="${data.path_normal}/${foto.identificador}.jpg" class="img-thumbnail">
         </div>`;
     });
     container.classList.add('p-1','d-flex','justify-content-between','justify-items-center','align-items-center','flex-wrap','align-items-center');
@@ -425,8 +429,8 @@ function atualizaRegistroArquivoFoto(objeto, action) {
             }
 
             objeto.dataset.ordem = json.ordem;
-            objeto.querySelector('img').src = `${json.path_miniaturas}/${json.identificador}.jpg`;
-            objeto.querySelector('img').dataset.src = `${json.path_normais}/${json.identificador}.jpg`;
+            objeto.querySelector('img').src = `${json.path_miniatura}/${json.identificador}.jpg`;
+            objeto.querySelector('img').dataset.src = `${json.path_normal}/${json.identificador}.jpg`;
 
             return;
         }

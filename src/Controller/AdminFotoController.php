@@ -35,14 +35,19 @@ class AdminFotoController extends AbstractController
     ) {
     }
 
-    #[Route('/admin/albuns/{idalbum}/fotos', name: 'app_admin_albuns_fotos_list', methods: ['GET'])]
-    public function adminAlbunsFotosList(int $idalbum): Response
+    #[Route('/admin/albuns/{idalbum}/fotos', name: 'app_admin_albuns_fotos_list', methods: ['GET'], condition: "request.headers.get('Accept') matches '/.+?json/'")]
+    public function adminAlbunsFotosList(int $idalbum, Request $request): Response
     {
         $album = $this->entityManager->getReference(Album::class, $idalbum);
         $fotosDoAlbum = $this->fotoRepository->getAllPhotos($album);
+
+        $pathCaches = array_reduce($this->getParameter('app.albuns.cache.sizes'), function($acumulador, $item) use ($idalbum) {
+            $acumulador["path_{$item}"] = "/images/cache/{$idalbum}/{$item}";
+            return $acumulador;
+        }, []);
+
         return $this->json([
-            'path_miniaturas' => "/images/cache/{$idalbum}/miniatura",
-            'path_normais' => "/images/cache/{$idalbum}/normal",
+            ...$pathCaches,
             'id' => $idalbum,
             'fotos' => $fotosDoAlbum,
         ]);
@@ -138,12 +143,16 @@ class AdminFotoController extends AbstractController
 
         $this->fotoRepository->add($foto, true);
 
+        $pathCaches = array_reduce($this->getParameter('app.albuns.cache.sizes'), function($acumulador, $item) use ($idalbum) {
+            $acumulador["path_{$item}"] = "/images/cache/{$idalbum}/{$item}";
+            return $acumulador;
+        }, []);
+
         return $this->json([
             'status' => 'success',
-            'path_miniaturas' => "/images/cache/{$idalbum}/miniatura",
-            'path_normais' => "/images/cache/{$idalbum}/normal",
             'identificador' => $foto->getIdentificador(),
-            ...$opcoes
+            ...$opcoes,
+            ...$pathCaches,
         ]);
     }
 
