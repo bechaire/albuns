@@ -44,7 +44,9 @@ export function procurarIndiceFilhoRelacaoPai(node, seletorPai) {
 }
 
 /**
- * 
+ * Desabilita um INPUT passando pra ele um valor que será exibido na tela, também
+ * permite que um valor seja enviado como se fosse este mesmo campo, pois cria um 
+ * type hidden com o mesmo nome, caso valueToSend seja informado
  * @param {object} input 
  * @param {string|null} valueToShow 
  * @param {string|null} valueToSend 
