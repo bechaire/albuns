@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Entity\Foto;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -36,30 +37,39 @@ class DBImportCommand extends Command
 
         $pdo = new \PDO('mysql:host=192.168.20.6;dbname=albuns', 'uAlbuns', 'nd65dhok79e', array(\PDO::MYSQL_ATTR_INIT_COMMAND=>'set names utf8'));
 
-        $this->clearTables();
-
         ini_set('memory_limit', '1048M');
 
+        $output->writeln("LIMPANDO TABELAS...");
+        $time = time();
+        $this->clearTables();
+        $timeTotal = time() - $time;
+        $output->writeln("As tabelas foram limpas, tempo: {$timeTotal}s");
+        
+        $output->writeln("IMPORTANDO USUÁRIOS...");
         $time = time();
         $qtd = $this->importUsuarios($pdo);
         $timeTotal = time() - $time;
         $output->writeln("Foram importados os {$qtd} usuários que existiam no banco de dados antigo, tempo: {$timeTotal}s");
 
+        $output->writeln("IMPORTANDO INSTITUIÇÕES...");
         $time = time();
         $qtd = $this->importInstituicoes($pdo);
         $timeTotal = time() - $time;
         $output->writeln("Foram importados as {$qtd} instituições que existiam no banco de dados antigo, tempo: {$timeTotal}s");
 
+        $output->writeln("IMPORTANDO ÁLBUNS...");
         $time = time();
         $qtd = $this->importAlbuns($pdo);
         $timeTotal = time() - $time;
         $output->writeln("Foram importados os {$qtd} álbuns que existiam no banco de dados antigo, tempo: {$timeTotal}s");
 
+        $output->writeln("IMPORTANDO FOTOS...");
         $time = time();
         $qtd = $this->importPhotos($pdo);
         $timeTotal = time() - $time;
         $output->writeln("Foram importados as {$qtd} fotos que existiam no banco de dados antigo, tempo: {$timeTotal}s");
 
+        $output->writeln("IMPORTANDO LOGS...");
         $time = time();
         $qtd = $this->importVisitas($pdo);
         $timeTotal = time() - $time;
@@ -159,6 +169,14 @@ class DBImportCommand extends Command
         
         $insert = 'INSERT INTO albuns (idalbum, idusuario, status, data, local, ano, titulo, addtag, acessos, instituicao, created, updated) VALUES ';
         foreach($rows as $row) {
+            switch($row['status']) {
+                case 'E':
+                    $row['status'] = 'C';
+                    break;
+                case 'I':
+                    $row['status'] = 'X';
+                    break;
+            }
             $insert .= sprintf('(%s, %s, "%s", "%s", "%s", "%s", "%s", "%s", %s, "%s", "%s", "%s"), ', 
                                 $row['idalbum'], $row['idusuario'], $row['status'], $row['data'], $row['local'], $row['ano'], str_replace('"', '\"', $row['titulo']), $row['addtag'], $row['acessos'], $row['instituicao'], $row['datacad'], $row['datacad']);
         }
@@ -182,7 +200,7 @@ class DBImportCommand extends Command
         $totalCount = 0;
         foreach($rows as $row) {
             $insert .= sprintf('(%s, %s, "%s", "%s", %s, "%s", "%s", "%s", now(), now()), ', 
-                                $row['idfoto'], $row['idalbum'], $row['arquivo'], $row['visivel'], $row['ordem'], $row['destaque'], $row['arquivo_original'], uniqid() . (string) mt_rand(0, 99));
+                                $row['idfoto'], $row['idalbum'], $row['arquivo'], $row['visivel'], $row['ordem'], $row['destaque'], $row['arquivo_original'], Foto::criaNovoIdentificador());
             $qtdRead++;
             if ($qtdRead >= 500) {
                 $insert = trim($insert, ', ');
@@ -196,6 +214,26 @@ class DBImportCommand extends Command
 
         $result = $this->entityManager->getConnection()->executeQuery($insert);
         $totalCount += $result->rowCount();
+
+        // atualiza fotos destaque no álbum de fotos
+        $update = <<<SQL
+            UPDATE 
+                albuns
+            SET
+                destaque = coalesce((SELECT identificador 
+                                     FROM fotos 
+                                     WHERE idalbum = albuns.idalbum 
+                                     AND destaque = 'S' 
+                                     AND visivel = 'S'), (SELECT identificador 
+                                                          FROM fotos 
+                                                          WHERE idalbum = albuns.idalbum 
+                                                          AND destaque = 'N' 
+                                                          AND visivel = 'S'
+                                                          ORDER BY ordem, idfoto
+                                                          LIMIT 1))
+        SQL;
+        $this->entityManager->getConnection()->executeQuery($update);
+
         return $totalCount;
     }
 

@@ -59,6 +59,7 @@ class AlbumService
             'acessos' => $album->getAcessos(),
             'instituicao' => $album->getInstituicao(),
             'created' => $album->getCreated()->format('Y-m-d H:i:s'),
+            'updated' => $album->getUpdated()->format('Y-m-d H:i:s'),
             'fotos' => []
         ];
         $fotos = $album->getFotos();
@@ -74,6 +75,7 @@ class AlbumService
                 'identificador' => $foto->getIdentificador(),
                 'opcoes' => $foto->getOpcoes(),
                 'created' => $foto->getCreated()->format('Y-m-d H:i:s'),
+                'updated' => $foto->getUpdated()->format('Y-m-d H:i:s'),
             ];
         }
 

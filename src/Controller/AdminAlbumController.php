@@ -106,7 +106,7 @@ class AdminAlbumController extends AbstractController
         }
 
         $albumForm = $this->createForm(AlbumType::class, $albumDTO, ['is_edit'=>true])
-                         ->handleRequest($request);
+                          ->handleRequest($request);
 
         if (!$albumForm->isSubmitted() || !$albumForm->isValid()) {
             return $this->render('admin_area/edit-album.html.twig', ['albumForm'=>$albumForm, 'idalbum'=>$album->getId()]);
