@@ -56,6 +56,9 @@ class Album
     #[ORM\Column(nullable: true)]
     private ?int $acessos = null;
 
+    #[ORM\Column(length: 15, nullable: true)]
+    private ?string $destaque = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created = null;
 
@@ -220,6 +223,18 @@ class Album
             $acessos = 0;
         }
         $this->acessos = $acessos;
+
+        return $this;
+    }
+
+    public function getDestaque(): ?string
+    {
+        return $this->destaque;
+    }
+
+    public function setDestaque(string $destaque): static
+    {
+        $this->destaque = $destaque;
 
         return $this;
     }

@@ -118,7 +118,7 @@ class AdminFotoController extends AbstractController
             throw $this->createNotFoundException('DESTAQUE com valor inválido');
         }
 
-        if (!in_array($opcoes['destaque'], ['S', 'N'])) {
+        if (!in_array($opcoes['visivel'], ['S', 'N'])) {
             throw $this->createNotFoundException('VISÍVEL com valor inválido');
         }
 
@@ -127,19 +127,13 @@ class AdminFotoController extends AbstractController
         $opcoes['flipv'] = (int) $opcoes['flipv'];
         $opcoes['rotate'] = (int) $opcoes['rotate'];
 
-        $opcoesEnviadas = json_encode(array_intersect_key($opcoes, $foto->defaultOptions()));
-
-        if ($foto->getOpcoes() != $opcoesEnviadas) {
-            $foto->setIdentificador(uniqid() . (string) mt_rand(0, 99));
-        }
+        $foto->setVisivel($opcoes['visivel']);
+        $foto->setOrdem($opcoes['ordem']);
+        $foto->setOpcoes($opcoes);
 
         if ($opcoes['destaque'] == 'S') {
             $this->fotoRepository->defineFotoDestaque($foto);
         }
-
-        $foto->setVisivel($opcoes['visivel']);
-        $foto->setOrdem($opcoes['ordem']);
-        $foto->setOpcoes($opcoesEnviadas);
 
         $this->fotoRepository->add($foto, true);
 
@@ -203,7 +197,7 @@ class AdminFotoController extends AbstractController
 
     private function registraImagemNoAlbum(string $pathDestino, UploadedFile $foto, int $posicao, int $idalbum): void
     {
-        $identificador = uniqid() . (string) mt_rand(0, 99);
+        $identificador = Foto::criaNovoIdentificador();
         $arquivoEnviadoRenomeado = $identificador . '.' . $foto->guessExtension();
         $arquivoEnviadoConvertido = $identificador . '.jpg';
 

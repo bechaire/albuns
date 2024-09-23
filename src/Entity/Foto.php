@@ -210,35 +210,23 @@ class Foto
 
     /**
      *
-     * @param string $opcoes É um JSON das opções da foto, ex: {flipv, fliph, rotate}
+     * @param array $opcoes Opções da foto, ex: [flipv, fliph, rotate], 
+     *                      ignora valores (chaves) que não são aceitos
      * @return static
      */
-    public function setOpcoes(string $opcoes): static
+    public function setOpcoes(array $opcoes): static
     {
-        $opcoesArray = json_decode($opcoes, true);
+        // fazer em array_map se ficar mais limpo
+        $opcoesAtuais = json_decode($this->getOpcoes(), true);
+        $diferencas = array_diff_assoc($opcoesAtuais, $opcoes);
+        $novasOpcoes = array_merge($opcoesAtuais, array_intersect_key($opcoes, $diferencas));
 
-        if ($this->isOptionsValid($opcoesArray)) {
-            ksort($opcoesArray);
-            $opcoes = json_encode($opcoesArray);
-        } else {
-            $opcoes = null;
+        if ($diferencas) {
+            $this->opcoes = json_encode($novasOpcoes);
+            $this->setIdentificador(self::criaNovoIdentificador());
         }
-
-        $this->opcoes = $opcoes;
 
         return $this;
-    }
-
-    private function isOptionsValid(?array $opcoes): bool
-    {
-        if (null === $opcoes) {
-            return false;
-        }
-
-        ksort($opcoes);
-
-        // possui os mesmos valores, na mesma ordem
-        return array_keys($opcoes) == array_keys( $this->defaultOptions() );
     }
 
     public function defaultOptions(): array
@@ -249,8 +237,16 @@ class Foto
             'rotate' => 0,
         ];
 
-        ksort($optionsPossible);
-
         return $optionsPossible;
+    }
+
+    /**
+     * Gera novo identificador para a foto (nova ou alterada) e retorna esse valor para uso
+     *
+     * @return string
+     */
+    public static function criaNovoIdentificador(): string
+    {
+        return uniqid() . (string) mt_rand(0, 99);
     }
 }

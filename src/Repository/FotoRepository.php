@@ -19,14 +19,25 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class FotoRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry
+    ) {
         parent::__construct($registry, Foto::class);
     }
 
     public function add(Foto $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
+
+        $unitOfWork = $this->getEntityManager()->getUnitOfWork();
+        $unitOfWork->computeChangeSets();
+        $changeSet = $unitOfWork->getEntityChangeSet($entity);
+
+        if ($entity->getDestaque() == 'S' && isset($changeSet['identificador'])) {
+            $album = $this->getEntityManager()->getReference(Album::class, $entity->getAlbum()->getId());
+            $album->setDestaque($entity->getIdentificador());
+            $this->getEntityManager()->persist($album);
+        }
 
         if ($flush) {
             $this->getEntityManager()->flush();
@@ -60,20 +71,51 @@ class FotoRepository extends ServiceEntityRepository
         return 'x';
     }
 
-    public function defineFotoDestaque(Foto $entity, bool $flush = false): void
+    public function defineFotoDestaque(Foto $entity): void
     {
+        // se a foto atual já é o destaque, ignora e não realiza o update
+        if ($entity->getDestaque() == 'S') {
+            return;
+        }
+
+        // define na tabela de fotos o registro que é a foto destaque do álbum
         $dql = <<<DQL
-            UPDATE App\Entity\Foto f SET f.destaque = 'N' WHERE f.album = ?1
+            UPDATE 
+                App\Entity\Foto f 
+            SET 
+                f.destaque = (CASE WHEN f.id = ?1 THEN 'S' ELSE 'N' END) 
+            WHERE 
+                f.album = ?2
         DQL;
 
         $query = $this->getEntityManager()->createQuery($dql);
-        $query->setParameter(1, $entity->getAlbum());
+        $query->setParameter(1, $entity->getId());
+        $query->setParameter(2, $entity->getAlbum());
         $query->execute();
 
-        $entity->setDestaque('S');
-        $this->add($entity, $flush);
+        // define na tabela de álbuns o identificador da foto destaque que foi atualizado
+        $dql = <<<DQL
+            UPDATE 
+                App\Entity\Album a 
+            SET 
+                a.destaque = (SELECT f.identificador FROM App\Entity\Foto f WHERE f.id = ?1) 
+            WHERE 
+                a.id = ?2
+        DQL;
+
+        $query = $this->getEntityManager()->createQuery($dql);
+        $query->setParameter(1, $entity->getId());
+        $query->setParameter(2, $entity->getAlbum());
+        $query->execute();
     }
 
+    /**
+     * Retorna detalhes da imagem do álbum que foi solicitada
+     *
+     * @param Album $album
+     * @param string $identificador
+     * @return Foto|null
+     */
     public function getInfoFoto(Album $album, string $identificador): ?Foto
     {
         $dql = <<<DQL
