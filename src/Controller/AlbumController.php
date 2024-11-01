@@ -8,6 +8,7 @@ use App\Exception\ImageException;
 use App\Interface\ImageFacadeInterface;
 use App\Repository\AlbumRepository;
 use App\Repository\FotoRepository;
+use App\Repository\InstituicaoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +24,7 @@ class AlbumController extends AbstractController
     public function __construct(
         private AlbumRepository $albumRepository,
         private FotoRepository $fotoRepository,
+        private InstituicaoRepository $instituicaoRepository,
         private Filesystem $filesystem,
         private ImageFacadeInterface $image,
         private LoggerInterface $log,
@@ -41,6 +43,33 @@ class AlbumController extends AbstractController
         );
     }
 
+    #[Route('/', name: 'app_index', methods: ['GET'])]
+    public function index(Request $request): Response
+    {
+        $host = $request->headers->get('host');
+        $infoHost = $this->instituicaoRepository->infoByHost($host);
+        
+        if (empty($infoHost)) {
+            throw $this->createNotFoundException("Domínio de acesso inválido para {$host}");
+        }
+
+        $acceptJson = $request->getAcceptableContentTypes()[0] == 'application/json';
+        if ($acceptJson) {
+            $albunsList = $this->albumRepository->albunsPublicData($infoHost['sigla']);
+            return $this->json(['data' => $albunsList]);
+        }
+
+        return new Response('teste');
+        return $this->render('admin_area/list-user.html.twig');
+    }
+    
+    #[Route('/foto', name: 'app_album', methods: ['GET'])]
+    public function album(Request $request): Response
+    {
+        $host = $request->headers->get('host');
+        return new Response('Acessou o host: ' . $host);
+    }
+
     private function cacheiaArquivoSolicitado(int $idalbum, string $tamanho, string $arquivo, Request $request): string
     {
         $identificador = str_replace('.jpg', '', $arquivo);
@@ -49,18 +78,21 @@ class AlbumController extends AbstractController
 
         $foto = $this->fotoRepository->getInfoFoto($album, $identificador);
         if (!$foto) {
+            $this->log->error('O link solicita um arquivo (hash) que não está no banco de dados', [$identificador]);
             throw $this->createNotFoundException('O arquivo solicitado não foi encontrado #1');
         }
 
         $arquivoArmazenado = $foto->getArquivo();
         $pathArquivoOrigem = $this->getParameter('app.albuns.path') . "/{$idalbum}/{$arquivoArmazenado}";
         if (!$this->filesystem->exists($pathArquivoOrigem)) {
+            $this->log->error('O link solicita um arquivo que não está no disco', [$pathArquivoOrigem]);
             throw $this->createNotFoundException('O arquivo solicitado não foi encontrado #2');
         }
 
         $tamanhosDisponiveis = $this->getParameter('app.albuns.cache.sizes');
         $tamanhoPX = array_search($tamanho, $tamanhosDisponiveis);
         if (!$tamanhoPX) {
+            $this->log->error('O link solicita um tamanho de arquivo não parametrizado', [$tamanho, $tamanhosDisponiveis]);
             throw $this->createNotFoundException('O arquivo solicitado não foi encontrado #3');
         }
 

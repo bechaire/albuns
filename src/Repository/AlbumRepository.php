@@ -33,7 +33,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function albunsListWithPhotosCount(): array
     {
         $dql = <<<DQL
-            SELECT a.id, a.instituicao, a.data, a.titulo, a.acessos, a.status, COUNT(f) qtdfotos
+            SELECT a.id, a.instituicao, a.data, a.titulo, a.acessos, a.status, a.destaque, COUNT(f) qtdfotos
             FROM App\Entity\Album a
             LEFT JOIN a.fotos f
             GROUP BY a.id, a.instituicao, a.data, a.titulo, a.acessos, a.status
@@ -41,6 +41,24 @@ class AlbumRepository extends ServiceEntityRepository
         DQL;
         // return $this->getEntityManager()->createQuery($dql)->enableResultCache(3600)->getResult();
         return $this->getEntityManager()->createQuery($dql)->getResult();
+    }
+
+    public function albunsPublicData(string $siglaInstituicao): array
+    {
+        $dql = <<<DQL
+            SELECT a.id, a.data, a.ano, a.local, a.titulo, a.acessos, 
+                   f.id, f.identificador, f.destaque
+            FROM App\Entity\Album a
+            LEFT JOIN a.fotos f WITH f.visivel = 'S'
+            WHERE a.status = 'A'
+            AND a.instituicao = ?1
+            ORDER BY a.data DESC, a.titulo, f.arquivo, f.identificador
+        DQL;
+        
+        $query = $this->getEntityManager()->createQuery($dql);
+        $query->setParameter(1, $siglaInstituicao);
+        die($query->getSQL());
+        return $query->getResult();
     }
 
     public function add(Album $entity, bool $flush=false): void

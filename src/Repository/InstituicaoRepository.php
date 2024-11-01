@@ -23,6 +23,19 @@ class InstituicaoRepository extends ServiceEntityRepository
         parent::__construct($registry, Instituicao::class);
     }
 
+    public function infoByHost(string $host): array
+    {
+        preg_match('/fahor|cfjl/', $host, $match);
+        $sigla = $match[0] ?? '';
+
+        return $this->createQueryBuilder('i')
+                    ->select('i')
+                    ->where('i.sigla = :sigla')
+                    ->setParameter('sigla', strtoupper($sigla))
+                    ->getQuery()
+                    ->getArrayResult()[0] ?? [];
+    }
+
     public function getSiglas(): array
     {
         $siglas =  $this->createQueryBuilder('i')
